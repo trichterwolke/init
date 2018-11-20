@@ -1,0 +1,67 @@
+grammar trichterwolke.init.Init with org.eclipse.xtext.common.Terminals
+generate init "http://www.init.trichterwolke/Init"
+
+DomainModel:
+	('namespace' namespace=QualifiedName)?
+	declarations+=Declaration*;
+
+QualifiedName:
+	ID ('.' ID)*;
+
+Declaration:
+	Enumeration | Entity;
+	 	 
+Enumeration:
+	'enum' name=ID (':' superType=IntegerType)? '{'
+		enumerals+=Enumeral*
+	'}';
+
+Enumeral:
+	name=ID '=' value=INT;
+	
+Entity:
+	'entity' name=ID (':' superType=[Entity])? '{'
+	attributs+=Attribut*
+	'}';
+		
+Attribut:
+	name=ID ':' type=Type;
+	 
+enum Cardinality:
+	ZeroOrOne='?' | ZeroOrMany='*' | OneOrMany='+' | One;	 
+	 
+Type:
+  DefinedType | StandardType;
+	
+DefinedType:
+	type=[Declaration] (cardinality=Cardinality)?;
+		
+StandardType:
+	(SimpleType | CharacterType) (nullable?='?')?;
+
+SimpleType:
+	FloatingpointType | IntegerType | OtherType;
+
+CharacterType:
+	keyword=CharacterKeyword ('(' size=INT ')')?;
+
+enum CharacterKeyword:
+	char;
+
+FloatingpointType:
+	keyword=FloatingPointKeyword;
+ 
+enum FloatingPointKeyword:
+	single | double | decimal;
+
+IntegerType:
+	keyword=IntegerKeyword;
+	
+enum IntegerKeyword:
+	byte | short | int | long;	
+  
+OtherType:
+	keyword=OtherKeyword;
+
+enum OtherKeyword:
+	datetime | bool | guid;
