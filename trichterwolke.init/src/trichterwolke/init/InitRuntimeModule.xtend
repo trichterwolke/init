@@ -3,9 +3,16 @@
  */
 package trichterwolke.init
 
+import com.google.inject.Binder
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class InitRuntimeModule extends AbstractInitRuntimeModule {
+	
+//	@Override
+//	override configure(Binder binder) {
+//		binder.bind(IScopeProvider.class).to(MyConcreteScopeProvider.class);
+//	}
+	
 }
