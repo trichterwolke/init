@@ -4,15 +4,26 @@
 package trichterwolke.init
 
 import com.google.inject.Binder
+import trichterwolke.init.generator.IEntityGenerator
+import trichterwolke.init.generator.EntityGenerator
+import trichterwolke.init.generator.CSharpTypeGenerator
+import trichterwolke.init.generator.ITypeGenerator
+import trichterwolke.init.generator.ITableGenerator
+import trichterwolke.init.generator.TableGenerator
+import trichterwolke.init.generator.IDbGenerator
+import trichterwolke.init.generator.PostgresGenerator
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
  */
 class InitRuntimeModule extends AbstractInitRuntimeModule {
 	
-//	@Override
-//	override configure(Binder binder) {
-//		binder.bind(IScopeProvider.class).to(MyConcreteScopeProvider.class);
-//	}
-	
+	override configure(Binder binder) {
+		super.configure(binder);
+		binder.bind(typeof(IEntityGenerator)).to(typeof(EntityGenerator));
+		binder.bind(typeof(ITypeGenerator)).to(typeof(CSharpTypeGenerator));
+		
+		binder.bind(typeof(ITableGenerator)).to(typeof(TableGenerator));
+		binder.bind(typeof(IDbGenerator)).to(typeof(PostgresGenerator));
+	}	
 }

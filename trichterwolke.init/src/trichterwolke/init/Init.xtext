@@ -21,14 +21,15 @@ Enumeral:
 	
 Entity:
 	'entity' name=ID (':' superType=[Entity])? '{'
-	attributs+=Attribut*
+	attributes+=Attribute*
 	'}';
 		
-Attribut:
+Attribute:
 	name=ID ':' type=Type;
 	 
 enum Cardinality:
-	ZeroOrOne='?' | ZeroOrMany='*' | OneOrMany='+' | One;	 
+	One='o' | OneOrMany='+' | ZeroOrOne='?' | ZeroOrMany='*'
+;	 
 	 
 Type:
   DefinedType | StandardType;

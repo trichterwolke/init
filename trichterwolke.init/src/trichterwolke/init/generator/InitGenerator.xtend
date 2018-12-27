@@ -7,7 +7,7 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import trichterwolke.init.init.Entity
+import com.google.inject.Inject
 
 /**
  * Generates code from your model files on save.
@@ -16,26 +16,14 @@ import trichterwolke.init.init.Entity
  */
 class InitGenerator extends AbstractGenerator {
 
-	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {		
-		
-		var entityGenerator = new EntityGenerator();
-				
-		entityGenerator.doGenerate(resource, fsa, context);
-				
-		fsa.generateFile('foo.txt','Bla' + resource.allContents.map[x | x.eClass.name].join(''));
-				
-		//fsa.generateFile('bar.txt','Bla' + resource.allContents
-			//.filter(Enum)
-			//.map[name]
-			//.forEach[]
-			
+	@Inject
+	IEntityGenerator entityGenerator;
+	
+	@Inject
+	ITableGenerator tableGenerator;
 
-		
-		fsa.generateFile('greetings.txt', 'People to greet: ' + 
-			resource.allContents
-				.filter(Entity)
-				.map[name]
-				.join(', '))
-				
+	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {					
+		this.entityGenerator.doGenerate(resource, fsa, context);	
+		this.tableGenerator.doGenerate(resource, fsa, context);						
 	}
 }
