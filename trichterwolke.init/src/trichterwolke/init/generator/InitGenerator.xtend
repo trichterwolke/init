@@ -3,11 +3,16 @@
  */
 package trichterwolke.init.generator
 
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import com.google.inject.Inject
+import trichterwolke.init.generator.controller.IControllerGenerator
+import trichterwolke.init.generator.dal.IDalGenerator
+import trichterwolke.init.generator.db.ICreateSchemaGenerator
+import trichterwolke.init.generator.db.IDropSchemaGenerator
+import trichterwolke.init.generator.entities.IEntityGenerator
 
 /**
  * Generates code from your model files on save.
@@ -20,10 +25,26 @@ class InitGenerator extends AbstractGenerator {
 	IEntityGenerator entityGenerator;
 	
 	@Inject
-	ITableGenerator tableGenerator;
+	IEnumerationGenerator enumerationGenerator;
+	
+	@Inject
+	ICreateSchemaGenerator createSchemaGenerator;
+	
+	@Inject
+	IDropSchemaGenerator dropSchemaGenerator;
+	
+	@Inject
+	IDalGenerator dalGenerator;
+	
+	@Inject
+	IControllerGenerator controllerGenerator;
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {					
-		this.entityGenerator.doGenerate(resource, fsa, context);	
-		this.tableGenerator.doGenerate(resource, fsa, context);						
+		this.entityGenerator.doGenerate(resource, fsa, context);
+		this.enumerationGenerator.doGenerate(resource, fsa, context);
+		this.dalGenerator.doGenerate(resource, fsa, context);
+		this.controllerGenerator.doGenerate(resource, fsa, context);
+		this.createSchemaGenerator.doGenerate(resource, fsa, context);
+		this.dropSchemaGenerator.doGenerate(resource,fsa, context);				
 	}
 }

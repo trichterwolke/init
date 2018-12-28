@@ -1,35 +1,39 @@
-package trichterwolke.init.generator
+package trichterwolke.init.generator.db.impl
 
-import trichterwolke.init.init.Entity
+import trichterwolke.init.generator.db.IDbGenerator
 import trichterwolke.init.init.Attribute
-import trichterwolke.init.init.Type
-import trichterwolke.init.init.OtherType
-import trichterwolke.init.init.IntegerType
-import trichterwolke.init.init.DefinedType
 import trichterwolke.init.init.CharacterType
+import trichterwolke.init.init.DefinedType
+import trichterwolke.init.init.Entity
 import trichterwolke.init.init.FloatingpointType
+import trichterwolke.init.init.IntegerType
+import trichterwolke.init.init.OtherType
+import trichterwolke.init.init.Type
 
 class PostgresGenerator implements IDbGenerator {	
 	override toTableName(Entity type) {
-		type.name.toLowerCase
+		type.name.toSnakeCase
 	}
 	
 	override toAttributeName(Attribute attribute)	
-		'''«attribute.name.toLowerCase»'''
+		'''«attribute.name.toSnakeCase»'''
 			
 	override toDbType(Type type) {
 		type.encode
 	}
 	
-	override quote(CharSequence name) {	
-		var stringname = name.toString	
-		switch(stringname) {
+	override quote(String name) {			
+		switch(name) {
 			case "end",
 			case "begin":
 				return '''"«name»"'''
 			default:
 				return name
 		}
+	}
+		
+	def toSnakeCase(String text){
+		text.replaceAll("(.)(\\p{Upper})", "$1_$2").toLowerCase();
 	}
 				
 	def dispatch encode(DefinedType type)

@@ -1,36 +1,43 @@
-package trichterwolke.init.generator
+package trichterwolke.init.generator.db.impl
 
-import org.eclipse.xtext.generator.IGeneratorContext
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
-import com.google.inject.Inject
-import trichterwolke.init.init.Entity
+import org.eclipse.xtext.generator.IGeneratorContext
+import trichterwolke.init.generator.GeneratorBase
+import trichterwolke.init.generator.IModelHelper
+import trichterwolke.init.generator.db.ICreateSchemaGenerator
+import trichterwolke.init.generator.db.IDbGenerator
 import trichterwolke.init.init.Attribute
 import trichterwolke.init.init.DefinedType
-import trichterwolke.init.init.StandardType
+import trichterwolke.init.init.Entity
 import trichterwolke.init.init.Enumeration
+import trichterwolke.init.init.StandardType
 
-class TableGenerator extends GeneratorBase implements ITableGenerator {
+class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenerator {
 		
 	@Inject
 	extension IDbGenerator	
+	
+	@Inject
+	extension IModelHelper	
 					
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 		
 		var entities = input.allContents.filter(Entity).toList;
 		var content = generateContent(entities);
-	    this.fsa.generateFile('schema.sql', content);	
+	    this.fsa.generateFile('create_schema.sql', content);	
 	}
 		
 	def generateContent(Iterable<Entity> entities)'''	
-		«generateTables(entities)»
-		
-		«generateForeignKeys(entities)»'''
+	«generateTables(entities)»
+	
+	«generateForeignKeys(entities)»'''
 		
 	def generateTables(Iterable<Entity> entities)'''
 		«FOR entity : entities SEPARATOR '\n'»
-		«generateTable(entity)»
+			«generateTable(entity)»
 		«ENDFOR» 
 	'''
 	
@@ -45,30 +52,17 @@ class TableGenerator extends GeneratorBase implements ITableGenerator {
 	
 	def generateForeignKeys(Iterable<Entity> entities)'''
 		«FOR entity : entities»	
-		«generateForeignKey(entity)»
+			«generateForeignKey(entity)»
 		«ENDFOR»
 	'''
 	
 	def generateForeignKey(Entity entity)'''	
 		«FOR attribute : entity.attributes.filter(a | isReference(a))»
-		ALTER TABLE «entity.toTableName.quote»
-		ADD CONSTRAINT «attribute.toAttributeName»_fkey FOREIGN KEY («attribute.toAttributeName»_id) REFERENCES «attribute.referencedEntity.toTableName.quote» (id);		
-		
+			ALTER TABLE «entity.toTableName.quote»
+			ADD CONSTRAINT «attribute.toAttributeName»_fkey FOREIGN KEY («attribute.toAttributeName»_id) REFERENCES «attribute.referencedEntity.toTableName.quote» (id);		
+			
 		«ENDFOR»
 	'''
-	
-	def isReference(Attribute attribute) {
-		var type = attribute.type		
-		if(type instanceof DefinedType) {
-			return type.type instanceof Entity		
-		}
-		
-	    return false;	    
-	}
-	
-	def getReferencedEntity(Attribute attribute) {
-		(attribute.type as DefinedType).type as Entity
-	}
 	
 	def generateAttribute(Attribute attribute) {
 		if(attribute.type instanceof DefinedType) {		
@@ -80,7 +74,7 @@ class TableGenerator extends GeneratorBase implements ITableGenerator {
 	}
 			
 	def dispatch generateNullable(StandardType type)
-		'''«IF !type.nullable»NOT«ENDIF» NULL'''
+		'''«IF !type.nullable»NOT «ENDIF»NULL'''
 		
 	def dispatch generateNullable(DefinedType type) {
 		switch type.cardinality {
