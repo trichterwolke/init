@@ -7,7 +7,7 @@ import trichterwolke.init.generator.GeneratorBase
 import trichterwolke.init.generator.dal.IDalGenerator
 import trichterwolke.init.init.Entity
 
-class DalGenerator extends GeneratorBase implements IDalGenerator {					
+class DalGenerator extends GeneratorBase /*implements IDalGenerator*/ {					
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 				

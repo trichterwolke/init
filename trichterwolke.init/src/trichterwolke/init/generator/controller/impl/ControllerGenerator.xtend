@@ -27,8 +27,8 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		using System.Collections.Generic;
 		using System.Threading.Tasks;
 		using Microsoft.AspNetCore.Mvc;
-		using Trichterwolke.Sisyphus.Dal;
 		using Trichterwolke.Sisyphus.Entities;
+		using Trichterwolke.Sisyphus.Services;
 		
 		namespace «this.namespace».Controller 
 		{   
@@ -36,45 +36,59 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 			[ApiController]
 			public class «entity.name»Controller : ControllerBase
 			{
-				private readonly I«entity.name»Dal _«entity.name.toFirstLower»Dal;
-				
-				public «entity.name»Controller(I«entity.name»Dal «entity.name.toFirstLower»Dal)
+				public «entity.name»Controller(I«entity.name»Service «entity.name.toFirstLower»Service)
 				{
-				    _«entity.name.toFirstLower»Dal = «entity.name.toFirstLower»Dal;
+				    «entity.name»Service = «entity.name.toFirstLower»Service;
 				}
+				
+				private I«entity.name»Service «entity.name»Service { get; }
 		
 				[HttpGet]
 				public async Task<ActionResult<IEnumerable<«entity.name»>>> FindAll()
 				{
-				    return Ok(await _«entity.name.toFirstLower»Dal.FindAllAsync());
+					var result = await «entity.name»Service.FindAllAsync();
+				    return Ok(result);
 				}
 		
 				// GET api/values/5
 				[HttpGet("{id}")]
 				public async Task<ActionResult<«entity.name»>> FindByID(int id)
 				{
-				    return Ok(await _«entity.name.toFirstLower»Dal.FindByIDAsync(id));
+					var result = await «entity.name»Service.FindByIDAsync(id);
+					
+					if (result == null)
+					{
+					    return NotFound();
+					}
+					else
+					{
+					    return Ok(result);
+					}
 				}
 		
 				// POST api/values
 				[HttpPost]
 				public async Task<ActionResult<int?>> Insert([FromBody] «entity.name» «entity.name»)
 				{
-				    return Ok(await _«entity.name.toFirstLower»Dal.InsertAsync(«entity.name»));
+					await «entity.name»Service.InsertAsync(«entity.name»);
+				    return Ok(«entity.name».ID);
 				}
 		
 				// PUT api/values/5
 				[HttpPut("{id}")]
-				public async Task Update(int id, [FromBody] «entity.name» «entity.name»)
+				public async Task<ActionResult> Update(int id, [FromBody] «entity.name» «entity.name»)
 				{
-				    await _«entity.name.toFirstLower»Dal.UpdateAsync(«entity.name»);
+					«entity.name».ID = id;
+				    await «entity.name»Service.UpdateAsync(«entity.name»);
+				    return Ok();
 				}
 
 				// DELETE api/values/5
 				[HttpDelete("{id}")]
-				public async Task Delete(int id)
+				public async Task<ActionResult> Delete(int id)
 				{
-				    await _«entity.name.toFirstLower»Dal.DeleteAsync(id);
+				    await «entity.name»Service.DeleteAsync(id);
+				    return Ok();
 				}
 			}
 		}'''
@@ -84,14 +98,21 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		using Microsoft.Extensions.DependencyInjection;
 		using Trichterwolke.Sisyphus.Dal;
 		using Trichterwolke.Sisyphus.Dal.Dapper;
+		using Trichterwolke.Sisyphus.Services;
+		using Trichterwolke.Sisyphus.Services.EntityFramework;
 		
 		public class Startup
 		{
 		    public void ConfigureServices(IServiceCollection services)
 		    {
-		    	// add this to your Startup class
+		    	// add this ...
 		        «FOR entity : entities»
 		        services.AddTransient<I«entity.name»Dal, «entity.name»Dal>();
+		        «ENDFOR»
+		        
+		        // or this to your Startup class
+		        «FOR entity : entities»
+		        services.AddTransient<I«entity.name»Service, «entity.name»Service>();
 		        «ENDFOR»
 		    }
 		}'''	

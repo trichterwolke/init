@@ -53,14 +53,15 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		    public class EntityBase<T> : IEquatable<T>
 		        where T : EntityBase<T>
 		    {
-		        public virtual int ID { get; set; }
+		    	[Column("id")]
+		        public int ID { get; set; }
 		
 		        public override bool Equals(object obj)
 		        {
 		            return Equals(obj as T);
 		        }
 		
-		        public bool Equals(T other)
+		        public virtual bool Equals(T other)
 		        {
 		            if(ReferenceEquals(this, other))
 		            {
