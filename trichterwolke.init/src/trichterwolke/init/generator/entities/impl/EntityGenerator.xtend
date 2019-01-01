@@ -5,9 +5,12 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import trichterwolke.init.generator.GeneratorBase
+import trichterwolke.init.generator.ICSharpGenerator
+import trichterwolke.init.generator.IModelHelper
 import trichterwolke.init.generator.ITypeGenerator
 import trichterwolke.init.generator.db.IDbGenerator
 import trichterwolke.init.generator.entities.IEntityGenerator
+import trichterwolke.init.init.Attribute
 import trichterwolke.init.init.Entity
 
 class EntityGenerator extends GeneratorBase implements IEntityGenerator {
@@ -16,7 +19,13 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 	extension ITypeGenerator	
 					
 	@Inject
-	extension IDbGenerator
+	extension IDbGenerator	
+	
+	@Inject
+	extension IModelHelper
+	
+	@Inject
+	extension ICSharpGenerator
 					
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
@@ -30,29 +39,73 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 	}
 				
 	def generateContent(Entity entity)'''
-		using System;	
+		using System;
+		using System.ComponentModel.DataAnnotations;
 		using System.ComponentModel.DataAnnotations.Schema;
 		
 		namespace «this.namespace».Entities
 		{
 			[Table("«entity.toTableName»")]
-			public class «entity.name» : EntityBase<«entity.name»>
+			public class «entity.name» : «IF entity.hasCustomKey»IEquatable<«entity.name»>«ELSE»EntityBase<«entity.name»>«ENDIF»
 			{
 				«FOR attribute : entity.attributes SEPARATOR '\n'»
-					[Column("«attribute.toAttributeName»")]
-					public «attribute.type.toType» «attribute.name» { get; set; }
+					«generateProperty(attribute)»
 				«ENDFOR»
+				«IF entity.hasCustomKey»
+
+					public override bool Equals(object obj)
+					{
+					    return Equals(obj as «entity.name»);
+					}
+
+					public virtual bool Equals(«entity.name» other)
+					{
+						if (other == null)
+						{
+						    return false;
+						}
+					
+						return «generateEqualsExpression(entity)»;
+					}
+					
+					public override int GetHashCode()
+					{
+					    return «generateHashCodeExpression(entity)»;
+					}
+				«ENDIF»
 			}
 		}'''
 	
+	def generateEqualsExpression(Entity entity)
+		'''«FOR attribute : entity.key SEPARATOR " && "»other.«attribute.toPropertyName» == «attribute.toPropertyName»«ENDFOR»'''
+	
+	def generateHashCodeExpression(Entity entity)
+		'''«FOR attribute : entity.key SEPARATOR " ^ "»«attribute.toPropertyName».GetHashCode()«ENDFOR»'''
+	
+	def generateProperty(Attribute attribute)'''
+		«IF attribute.isKey»
+		[Key]
+		«ENDIF»
+		«IF attribute.isReference»
+		[Column("«attribute.toAttributeName»_id")]
+		public int «attribute.name»ID { get; set; }
+
+		«ENDIF»
+		[Column("«attribute.toAttributeName»")]
+		public «attribute.type.toType» «attribute.name» { get; set; }
+	'''
+	
 	def generateEntityBase()'''
 		using System;
+		using System.ComponentModel.DataAnnotations;
+		using System.ComponentModel.DataAnnotations.Schema;
 		
 		namespace Trichterwolke.Sisyphus.Entities
 		{
 		    public class EntityBase<T> : IEquatable<T>
 		        where T : EntityBase<T>
 		    {
+		    	[Key]
 		    	[Column("id")]
 		        public int ID { get; set; }
 		
@@ -63,15 +116,10 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		
 		        public virtual bool Equals(T other)
 		        {
-		            if(ReferenceEquals(this, other))
-		            {
-		                return true;
-		            }
-		
-		            if(ReferenceEquals(null, other))
-		            {
-		                return false;
-		            }
+					if (other == null)
+					{
+					    return false;
+					}
 		
 		            return other.ID == ID; 
 		        }

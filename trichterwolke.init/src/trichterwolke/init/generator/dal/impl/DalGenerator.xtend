@@ -4,7 +4,6 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import trichterwolke.init.generator.GeneratorBase
-import trichterwolke.init.generator.dal.IDalGenerator
 import trichterwolke.init.init.Entity
 
 class DalGenerator extends GeneratorBase /*implements IDalGenerator*/ {					

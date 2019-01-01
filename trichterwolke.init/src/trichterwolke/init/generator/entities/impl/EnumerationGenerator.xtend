@@ -4,12 +4,15 @@ import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
+import trichterwolke.init.generator.GeneratorBase
+import trichterwolke.init.generator.ITypeGenerator
+import trichterwolke.init.generator.entities.IEnumerationGenerator
 import trichterwolke.init.init.Enumeration
 
-class EnumerationGenerator extends trichterwolke.init.generator.GeneratorBase implements trichterwolke.init.generator.IEnumerationGenerator {
+class EnumerationGenerator extends GeneratorBase implements IEnumerationGenerator {
 	
 	@Inject
-	extension trichterwolke.init.generator.ITypeGenerator
+	extension ITypeGenerator
 					
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);

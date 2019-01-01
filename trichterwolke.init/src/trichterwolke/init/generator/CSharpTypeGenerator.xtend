@@ -11,7 +11,7 @@ class CSharpTypeGenerator implements ITypeGenerator {
 	override toType(Type type) {
 		type.encode	
 	}
-	
+		
 	def dispatch encode(DefinedType type)
 		'''«type.type.name»''' 
 	
@@ -55,5 +55,5 @@ class CSharpTypeGenerator implements ITypeGenerator {
 			case GUID:
 			    '''Guid'''			
 		}
-	}	
+	}
 }

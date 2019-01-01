@@ -1,19 +1,28 @@
 package trichterwolke.init.generator.controller.impl
 
+import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import trichterwolke.init.generator.GeneratorBase
+import trichterwolke.init.generator.ICSharpGenerator
+import trichterwolke.init.generator.IModelHelper
 import trichterwolke.init.generator.controller.IControllerGenerator
 import trichterwolke.init.init.Entity
 
 class ControllerGenerator extends GeneratorBase implements IControllerGenerator {					
+	
+	@Inject
+	extension IModelHelper	
+	
+	@Inject
+	extension ICSharpGenerator
 					
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 		
 		var startup = generateStartup(input.allContents.filter(Entity).toList);
-		this.fsa.generateFile('''«this.namespace»/Startup.copyandpaste.cs''', startup);
+		this.fsa.generateFile('''«this.namespace»/Startup.txt''', startup);
 				
 	    input.allContents.filter(Entity).forEach[generateFile];		   
 	}
@@ -40,7 +49,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				{
 				    «entity.name»Service = «entity.name.toFirstLower»Service;
 				}
-				
+
 				private I«entity.name»Service «entity.name»Service { get; }
 		
 				[HttpGet]
@@ -51,10 +60,10 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				}
 		
 				// GET api/values/5
-				[HttpGet("{id}")]
-				public async Task<ActionResult<«entity.name»>> FindByID(int id)
+				[HttpGet("«generateHttpParameters(entity)»")]
+				public async Task<ActionResult<«entity.name»>> Find(«generateParametersDeclaration(entity)»)
 				{
-					var result = await «entity.name»Service.FindByIDAsync(id);
+					var result = await «entity.name»Service.FindAsync(«generateParameters(entity)»);
 					
 					if (result == null)
 					{
@@ -68,31 +77,49 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		
 				// POST api/values
 				[HttpPost]
-				public async Task<ActionResult<int?>> Insert([FromBody] «entity.name» «entity.name»)
+				public async Task<ActionResult«IF !entity.hasCustomKey»<int?>«ENDIF»> Insert([FromBody] «entity.name» «entity.toParameterName»)
 				{
-					await «entity.name»Service.InsertAsync(«entity.name»);
-				    return Ok(«entity.name».ID);
+					await «entity.name»Service.InsertAsync(«entity.toParameterName»);
+				    return Ok(«IF !entity.hasCustomKey»«entity.toParameterName».ID«ENDIF»);
 				}
 		
 				// PUT api/values/5
-				[HttpPut("{id}")]
-				public async Task<ActionResult> Update(int id, [FromBody] «entity.name» «entity.name»)
+				[HttpPut("«generateHttpParameters(entity)»")]
+				public async Task<ActionResult> Update(«generateParametersDeclaration(entity)», [FromBody] «entity.name» «entity.toParameterName»)
 				{
-					«entity.name».ID = id;
-				    await «entity.name»Service.UpdateAsync(«entity.name»);
+					«generatePropertyAssignment(entity)»
+
+				    await «entity.name»Service.UpdateAsync(«entity.toParameterName»);
 				    return Ok();
 				}
 
 				// DELETE api/values/5
-				[HttpDelete("{id}")]
-				public async Task<ActionResult> Delete(int id)
+				[HttpDelete("«generateHttpParameters(entity)»")]
+				public async Task<ActionResult> Delete(«generateParametersDeclaration(entity)»)
 				{
-				    await «entity.name»Service.DeleteAsync(id);
+				    await «entity.name»Service.DeleteAsync(«generateParameters(entity)»);
 				    return Ok();
 				}
 			}
 		}'''
 	
+		
+	def generateHttpParameters(Entity entity)
+    	'''«FOR key : entity.key SEPARATOR "/"»{«key.toParameterName»}«ENDFOR»'''
+	
+	def generatePropertyAssignment(Entity entity)'''		
+		«IF entity.hasCustomKey» 
+			«FOR attribute : entity.key»	
+				«IF attribute.isReference»
+					«entity.name.toFirstLower».«attribute.name»ID = «attribute.name.toFirstLower»ID;
+				«ELSE»
+					«entity.name.toFirstLower».«attribute.name» = «attribute.name.toFirstLower»;
+				«ENDIF»				
+			«ENDFOR»
+		«ELSE»
+			«entity.toParameterName».ID = id;
+		«ENDIF»
+	'''
 	
 	def generateStartup(Iterable<Entity> entities)'''
 		using Microsoft.Extensions.DependencyInjection;

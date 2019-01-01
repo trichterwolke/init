@@ -4,8 +4,9 @@
 package trichterwolke.init
 
 import com.google.inject.Binder
+import trichterwolke.init.generator.CSharpGenerator
 import trichterwolke.init.generator.CSharpTypeGenerator
-import trichterwolke.init.generator.IEnumerationGenerator
+import trichterwolke.init.generator.ICSharpGenerator
 import trichterwolke.init.generator.IModelHelper
 import trichterwolke.init.generator.ITypeGenerator
 import trichterwolke.init.generator.ModelHelper
@@ -18,6 +19,7 @@ import trichterwolke.init.generator.db.impl.CreateSchemaGenerator
 import trichterwolke.init.generator.db.impl.DropSchemaGenerator
 import trichterwolke.init.generator.db.impl.PostgresGenerator
 import trichterwolke.init.generator.entities.IEntityGenerator
+import trichterwolke.init.generator.entities.IEnumerationGenerator
 import trichterwolke.init.generator.entities.impl.EntityGenerator
 import trichterwolke.init.generator.entities.impl.EnumerationGenerator
 import trichterwolke.init.generator.services.IServicesGenerator
@@ -35,6 +37,7 @@ class InitRuntimeModule extends AbstractInitRuntimeModule {
 		binder.bind(typeof(IEntityGenerator)).to(typeof(EntityGenerator));
 		binder.bind(typeof(IServicesGenerator)).to(typeof(ServicesGenerator));
 		binder.bind(typeof(ITypeGenerator)).to(typeof(CSharpTypeGenerator));
+		binder.bind(typeof(ICSharpGenerator)).to(typeof(CSharpGenerator));
 		binder.bind(typeof(IEnumerationGenerator)).to(typeof(EnumerationGenerator));
 		binder.bind(typeof(IControllerGenerator)).to(typeof(ControllerGenerator));
 		

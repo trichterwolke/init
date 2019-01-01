@@ -12,6 +12,7 @@ import trichterwolke.init.generator.controller.IControllerGenerator
 import trichterwolke.init.generator.db.ICreateSchemaGenerator
 import trichterwolke.init.generator.db.IDropSchemaGenerator
 import trichterwolke.init.generator.entities.IEntityGenerator
+import trichterwolke.init.generator.entities.IEnumerationGenerator
 import trichterwolke.init.generator.services.IServicesGenerator
 
 /**

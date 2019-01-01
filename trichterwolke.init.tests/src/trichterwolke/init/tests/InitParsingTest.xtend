@@ -10,13 +10,13 @@ import org.eclipse.xtext.testing.util.ParseHelper
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.^extension.ExtendWith
-import trichterwolke.init.init.Model
+import trichterwolke.init.init.DomainModel
 
 @ExtendWith(InjectionExtension)
 @InjectWith(InitInjectorProvider)
 class InitParsingTest {
 	@Inject
-	ParseHelper<Model> parseHelper
+	ParseHelper<DomainModel> parseHelper
 	
 	@Test
 	def void loadModel() {
