@@ -30,17 +30,15 @@ Attribute:
 Key:
 	type=DefinedType;	
 	 
-enum Cardinality:
-	One='o' | OneOrMany='+' | ZeroOrOne='?' | ZeroOrMany='*';	 
 	 
 Type:
-  DefinedType | StandardType;
+  (DefinedType | StandardType) (nullable?='?')?;
 	
 DefinedType:
-	type=[Declaration] (cardinality=Cardinality)?;
+	type=[Declaration];
 		
 StandardType:
-	(SimpleType | CharacterType) (nullable?='?')?;
+	SimpleType | CharacterType;
 
 SimpleType:
 	FloatingpointType | IntegerType | OtherType;

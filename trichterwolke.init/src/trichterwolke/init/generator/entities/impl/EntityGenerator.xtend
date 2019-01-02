@@ -12,6 +12,7 @@ import trichterwolke.init.generator.db.IDbGenerator
 import trichterwolke.init.generator.entities.IEntityGenerator
 import trichterwolke.init.init.Attribute
 import trichterwolke.init.init.Entity
+import trichterwolke.init.init.CharacterType
 
 class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		
@@ -85,7 +86,10 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 	def generateProperty(Attribute attribute)'''
 		«IF attribute.isKey»
 		[Key]
+		«ELSEIF !attribute.type.isNullable»
+		[Required]
 		«ENDIF»
+		«generateStringLenghtAttribute(attribute)»
 		«IF attribute.isReference»
 		[Column("«attribute.toAttributeName»_id")]
 		public int «attribute.name»ID { get; set; }
@@ -94,6 +98,15 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		[Column("«attribute.toAttributeName»")]
 		public «attribute.type.toType» «attribute.name» { get; set; }
 	'''
+	
+	def generateStringLenghtAttribute(Attribute attribute){
+		var type = attribute.type
+		if(type instanceof CharacterType) {
+			if(type.size > 0) {
+			'''[StringLength(«type.size»)]'''
+			}
+		}
+	}	
 	
 	def generateEntityBase()'''
 		using System;

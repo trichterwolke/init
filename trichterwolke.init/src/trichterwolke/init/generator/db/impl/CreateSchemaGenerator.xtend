@@ -12,7 +12,7 @@ import trichterwolke.init.init.Attribute
 import trichterwolke.init.init.DefinedType
 import trichterwolke.init.init.Entity
 import trichterwolke.init.init.Enumeration
-import trichterwolke.init.init.StandardType
+import trichterwolke.init.init.Type
 
 class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenerator {
 		
@@ -43,10 +43,13 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 	
 	def generateTable(Entity entity)'''
 	CREATE TABLE «entity.toTableName.quote» (
-		id SERIAL PRIMARY KEY,
+		«IF !entity.hasCustomKey»id SERIAL PRIMARY KEY,«ENDIF»
 		«FOR attribute : entity.attributes SEPARATOR ','»
 			«generateAttribute(attribute)»
 		«ENDFOR»
+		«IF entity.hasCustomKey»
+		«generateCustomPrimaryKey(entity)»
+		«ENDIF»
 	)«IF entity.superType !== null» INHERITS («entity.superType.toTableName»)«ENDIF»;'''
 
 	
@@ -61,8 +64,12 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 			ALTER TABLE «entity.toTableName.quote»
 			ADD CONSTRAINT «attribute.toAttributeName»_fkey FOREIGN KEY («attribute.toAttributeName»_id) REFERENCES «attribute.referencedEntity.toTableName.quote» (id);		
 			
-		«ENDFOR»
-	'''
+		«ENDFOR»								
+	'''	
+	
+	def generateCustomPrimaryKey(Entity entity)		
+		''', PRIMARY KEY («FOR attribute : entity.key SEPARATOR ", "»«attribute.toAttributeName»«IF attribute.isReference»_id«ENDIF»«ENDFOR»)'''
+	
 	
 	def generateAttribute(Attribute attribute) {
 		if(attribute.type instanceof DefinedType) {		
@@ -73,20 +80,9 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 		}	
 	}
 			
-	def dispatch generateNullable(StandardType type)
+	def generateNullable(Type type)
 		'''«IF !type.nullable»NOT «ENDIF»NULL'''
 		
-	def dispatch generateNullable(DefinedType type) {
-		switch type.cardinality {
-			case ONE,
-	        case ONE_OR_MANY:
-	            '''NOT NULL'''
-	    	case ZERO_OR_ONE,
-	    	case ZERO_OR_MANY:
-	    		'''NULL'''
-		}
-	}
-	
 	def generateDefinedTypeAttribute(Attribute attribute){
 		var type = attribute.type
 		if(type instanceof DefinedType) {
