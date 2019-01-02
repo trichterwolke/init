@@ -25,7 +25,7 @@ Entity:
 	'}';	
 		
 Attribute:
-	name=ID ':' type=Type (key?='key')?; 
+	name=ID ':' type=Type (key?='key' | unique?='unique')?; 
 	
 Key:
 	type=DefinedType;	

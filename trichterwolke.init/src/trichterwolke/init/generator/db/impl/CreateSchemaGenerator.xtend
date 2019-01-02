@@ -71,7 +71,11 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 		''', PRIMARY KEY («FOR attribute : entity.key SEPARATOR ", "»«attribute.toAttributeName»«IF attribute.isReference»_id«ENDIF»«ENDFOR»)'''
 	
 	
-	def generateAttribute(Attribute attribute) {
+	def generateAttribute(Attribute attribute)
+		'''«generateAttributeInner(attribute)»«generateUnique(attribute)»'''
+	
+	
+	def generateAttributeInner(Attribute attribute) {		
 		if(attribute.type instanceof DefinedType) {		
 			generateDefinedTypeAttribute(attribute);
 		}
@@ -79,7 +83,13 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 			'''«attribute.toAttributeName.quote» «attribute.type.toDbType» «generateNullable(attribute.type)»'''
 		}	
 	}
-			
+	
+	def generateUnique(Attribute attribute){
+		if(attribute.isUnique){
+			return ''' UNIQUE'''
+		}
+	}
+						
 	def generateNullable(Type type)
 		'''«IF !type.nullable»NOT «ENDIF»NULL'''
 		

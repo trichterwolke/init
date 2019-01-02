@@ -83,7 +83,7 @@ class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
 
 			    protected EntityContext Context { get; }
 
-			    public virtual async Task DeleteAsync(params int[] keyValues)
+			    public virtual async Task DeleteAsync(object[] keyValues)
 			    {
 			        var entity = await Context.FindAsync<T>(keyValues);
 			        Context.Remove(entity);
@@ -95,7 +95,7 @@ class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
 			        return await Context.Set<T>().ToListAsync();
 			    }
 
-			    public virtual async Task<T> FindAsync(int[] keyValues)
+			    public virtual async Task<T> FindAsync(object[] keyValues)
 			    {
 			        return await Context.FindAsync<T>(keyValues);
 			    }
@@ -123,9 +123,9 @@ class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
 		{
 		    public interface ICrudService<T>
 		    {
-				Task DeleteAsync(params int[] keyValues);
+				Task DeleteAsync(params object[] keyValues);
 				Task<IEnumerable<T>> FindAllAsync();
-				Task<T> FindAsync(params int[] keyValues);
+				Task<T> FindAsync(params object[] keyValues);
 				Task InsertAsync(T entity);
 				Task UpdateAsync(T entity);
 		    }
