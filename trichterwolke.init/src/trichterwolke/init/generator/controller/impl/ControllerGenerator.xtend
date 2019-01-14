@@ -111,13 +111,13 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		«IF entity.hasCustomKey» 
 			«FOR attribute : entity.key»	
 				«IF attribute.isReference»
-					«entity.name.toFirstLower».«attribute.name»ID = «attribute.name.toFirstLower»ID;
+					«entity.name.toFirstLower».«attribute.name»Id = «attribute.name.toFirstLower»Id;
 				«ELSE»
 					«entity.name.toFirstLower».«attribute.name» = «attribute.name.toFirstLower»;
 				«ENDIF»				
 			«ENDFOR»
 		«ELSE»
-			«entity.toParameterName».ID = id;
+			«entity.toParameterName».Id = id;
 		«ENDIF»
 	'''
 	

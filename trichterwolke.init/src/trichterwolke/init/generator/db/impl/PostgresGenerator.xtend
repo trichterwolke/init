@@ -80,5 +80,17 @@ class PostgresGenerator implements IDbGenerator {
 			case GUID:
 			    '''UUID'''			
 		}
-	}	
+	}
+	
+	override toSerialType(IntegerType type) {
+	   switch type.keyword{
+	   	 case LONG:
+	   	 	'''BIGSERIAL'''
+	   	 case INT:
+	   	 	'''SERIAL'''
+	   	 default:
+	   	 	'''SMALLSERIAL'''
+	   }
+	}
+	
 }

@@ -38,6 +38,5 @@ class ModelHelper implements IModelHelper {
 	
 	override withCompositeKey(Iterable<Entity> entities) {
 		entities.filter(e | e.key.size > 1)
-	}
-	
+	}	
 }

@@ -3,6 +3,7 @@ generate init "http://www.init.trichterwolke/Init"
 
 DomainModel:
 	('namespace' namespace=QualifiedName)?
+	('defaultkeytype' defaultKeyType=IntegerType)?
 	declarations+=Declaration*;
 
 QualifiedName:
@@ -20,7 +21,7 @@ Enumeral:
 	name=ID '=' value=INT;
 	
 Entity:
-	'entity' name=ID (':' superType=[Entity])? '{'
+	'entity' name=ID (':' overrideKeyType=IntegerType)? '{'
 	attributes+=Attribute*
 	'}';	
 		

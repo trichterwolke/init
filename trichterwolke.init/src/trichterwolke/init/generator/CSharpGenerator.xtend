@@ -64,4 +64,9 @@ class CSharpGenerator implements ICSharpGenerator {
 	def toShortName(String text){
 		text.replaceAll("([a-z]+)", "").toLowerCase();
 	}
+	
+	override toNaturalName(String text) {
+		text.replaceAll("(.)(\\p{Upper})", "$1 $2").toLowerCase();
+	}
+	
 }

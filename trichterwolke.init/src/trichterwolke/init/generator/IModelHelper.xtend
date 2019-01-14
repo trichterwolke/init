@@ -2,6 +2,7 @@ package trichterwolke.init.generator
 
 import trichterwolke.init.init.Attribute
 import trichterwolke.init.init.Entity
+import trichterwolke.init.init.IntegerType
 
 interface IModelHelper {
 	def Boolean isReference(Attribute attribute) 
@@ -12,5 +13,5 @@ interface IModelHelper {
 	
 	def Iterable<Attribute> getKey(Entity entity)
 	
-	def Iterable<Entity> withCompositeKey(Iterable<Entity> entities)
+	def Iterable<Entity> withCompositeKey(Iterable<Entity> entities)	
 }

@@ -43,14 +43,14 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 	
 	def generateTable(Entity entity)'''
 	CREATE TABLE «entity.toTableName.quote» (
-		«IF !entity.hasCustomKey»id SERIAL PRIMARY KEY,«ENDIF»
+		«IF !entity.hasCustomKey»id «getKeyType(entity).toSerialType» PRIMARY KEY,«ENDIF»
 		«FOR attribute : entity.attributes SEPARATOR ','»
 			«generateAttribute(attribute)»
 		«ENDFOR»
 		«IF entity.hasCustomKey»
 		«generateCustomPrimaryKey(entity)»
 		«ENDIF»
-	)«IF entity.superType !== null» INHERITS («entity.superType.toTableName»)«ENDIF»;'''
+	)'''
 
 	
 	def generateForeignKeys(Iterable<Entity> entities)'''
@@ -98,7 +98,7 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 		if(type instanceof DefinedType) {
 			var ref = type.type
 			if(ref instanceof Entity) {
-				'''«attribute.toAttributeName»_id INT «generateNullable(attribute.type)»'''
+				'''«attribute.toAttributeName»_id «ref.keyType.toDbType» «generateNullable(attribute.type)»'''
 			}
 			else if(ref instanceof Enumeration) {
 				'''«attribute.toAttributeName» «ref.superType.toDbType»'''

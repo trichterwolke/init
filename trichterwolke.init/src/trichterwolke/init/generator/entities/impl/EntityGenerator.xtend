@@ -46,19 +46,35 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		
 		namespace «this.namespace».Entities
 		{
+		    /// <summary>
+		    /// Represents the «entity.name.toNaturalName» entity
+		    /// </summary>
 			[Table("«entity.toTableName»")]
-			public class «entity.name» : «IF entity.hasCustomKey»IEquatable<«entity.name»>«ELSE»EntityBase<«entity.name»>«ENDIF»
+			public class «entity.name» : «IF entity.hasCustomKey»IEquatable<«entity.name»>«ELSE»EntityBase<«entity.name», «getKeyType(entity).toType»>«ENDIF»
 			{
+		        /// <summary>
+		        /// Gets or sets the «entity.name.toNaturalName»
+		        /// </summary>
 				«FOR attribute : entity.attributes SEPARATOR '\n'»
 					«generateProperty(attribute)»
 				«ENDFOR»
 				«IF entity.hasCustomKey»
 
+					/// <summary>
+					/// Indicates whether this instance and another entity of the same type have the same primary key.
+					/// </summary>
+					/// <param name="obj">An entity to compare with this entity</param>
+					/// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
 					public override bool Equals(object obj)
 					{
 					    return Equals(obj as «entity.name»);
 					}
 
+					/// <summary>
+					/// Indicates whether this instance and another entity of the same type have the same primary key.
+					/// </summary>
+					/// <param name="obj">An entity to compare with this entity</param>
+					/// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
 					public virtual bool Equals(«entity.name» other)
 					{
 						if (other == null)
@@ -69,6 +85,10 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 						return «generateEqualsExpression(entity)»;
 					}
 					
+					/// <summary>
+					/// Retunrn the hash values of the primary key
+					/// </summary>
+					/// <returns>Hash values of the primary key</returns>
 					public override int GetHashCode()
 					{
 					    return «generateHashCodeExpression(entity)»;
@@ -92,7 +112,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		«generateStringLenghtAttribute(attribute)»
 		«IF attribute.isReference»
 		[Column("«attribute.toAttributeName»_id")]
-		public int «attribute.name»ID { get; set; }
+		public «getKeyType(attribute.referencedEntity).toType» «attribute.name»ID { get; set; }
 
 		«ENDIF»
 		[Column("«attribute.toAttributeName»")]
@@ -115,18 +135,36 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		
 		namespace Trichterwolke.Sisyphus.Entities
 		{
-		    public class EntityBase<T> : IEquatable<T>
-		        where T : EntityBase<T>
+		    /// <summary>
+		    /// Base class for an entity with an non composit primary key
+		    /// </summary>
+		    /// <typeparam name="T">Type of the derived class</typeparam>
+		    /// <typeparam name="TKey">Type of the primary key</typeparam>
+		    public class EntityBase<T, TKey> : IEquatable<T>
+		        where T : EntityBase<T, TKey>
 		    {
+		        /// <summary>
+		        /// The primary key
+		        /// </summary>
 		    	[Key]
 		    	[Column("id")]
-		        public int ID { get; set; }
+		        public TKey Id { get; set; }
 		
+		        /// <summary>
+		        /// Indicates whether this instance and another entity of the same type have the same ID.
+		        /// </summary>
+		        /// <param name="obj">An entity to compare with this entity</param>
+		        /// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
 		        public override bool Equals(object obj)
 		        {
 		            return Equals(obj as T);
 		        }
 		
+		        /// <summary>
+		        /// Indicates whether this instance and another entity of the same type have the same ID.
+		        /// </summary>
+		        /// <param name="obj">An entity to compare with this entity</param>
+		        /// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
 		        public virtual bool Equals(T other)
 		        {
 					if (other == null)
@@ -134,12 +172,16 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 					    return false;
 					}
 		
-		            return other.ID == ID; 
+		            return other.Id.equals(Id); 
 		        }
 		
+		        /// <summary>
+		        /// Serves the default hash function of the ID
+		        /// </summary>
+		        /// <returns></returns>
 		        public override int GetHashCode()
 		        {
-		            return ID;
+		            return Id.GetHashCode();
 		        }
 		    }
 		}'''
