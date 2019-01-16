@@ -52,7 +52,7 @@ class DropSchemaGenerator extends GeneratorBase implements IDropSchemaGenerator 
 	def generateForeignKey(Entity entity)'''	
 		«FOR attribute : entity.attributes.filter(a | isReference(a))»
 			ALTER TABLE «entity.toTableName.quote»
-			DROP CONSTRAINT «attribute.toAttributeName»_fkey;
+			DROP CONSTRAINT «entity.toTableName»_«attribute.toAttributeName»_fkey;
 			
 		«ENDFOR»
 	'''

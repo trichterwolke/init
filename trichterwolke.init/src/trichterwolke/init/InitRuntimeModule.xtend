@@ -22,8 +22,8 @@ import trichterwolke.init.generator.entities.IEntityGenerator
 import trichterwolke.init.generator.entities.IEnumerationGenerator
 import trichterwolke.init.generator.entities.impl.EntityGenerator
 import trichterwolke.init.generator.entities.impl.EnumerationGenerator
-import trichterwolke.init.generator.services.IServicesGenerator
-import trichterwolke.init.generator.services.impl.ServicesGenerator
+import trichterwolke.init.generator.managers.IManagersGenerator
+import trichterwolke.init.generator.managers.impl.ManagersGenerator
 
 /**
  * Use this class to register components to be used at runtime / without the Equinox extension registry.
@@ -35,7 +35,7 @@ class InitRuntimeModule extends AbstractInitRuntimeModule {
 		binder.bind(typeof(IModelHelper)).to(typeof(ModelHelper));
 		
 		binder.bind(typeof(IEntityGenerator)).to(typeof(EntityGenerator));
-		binder.bind(typeof(IServicesGenerator)).to(typeof(ServicesGenerator));
+		binder.bind(typeof(IManagersGenerator)).to(typeof(ManagersGenerator));
 		binder.bind(typeof(ITypeGenerator)).to(typeof(CSharpTypeGenerator));
 		binder.bind(typeof(ICSharpGenerator)).to(typeof(CSharpGenerator));
 		binder.bind(typeof(IEnumerationGenerator)).to(typeof(EnumerationGenerator));

@@ -41,21 +41,21 @@ class PostgresGenerator implements IDbGenerator {
 	
 	def dispatch encode(CharacterType type) {
 		if (type.size == 0)
-			'TEXT'
+			'text'
 		else if (type.size == 1)
-	   		'CHAR(1)'
+	   		'character(1)'
 	   	else
-	   		'''VARCHAR(«type.size»)'''
+	   		'''character varying(«type.size»)'''
 	}
 		
 	def dispatch encode(FloatingpointType type) {
 		switch type.keyword {
 			case DOUBLE:
-				'''FLOAT'''			
+				'''float'''			
 			case SINGLE:
-				'''REAL'''
+				'''real'''
 			case DECIMAL:
-			    '''NUMERIC'''			
+			    '''numeric'''			
 		}
 	}
 	
@@ -63,33 +63,33 @@ class PostgresGenerator implements IDbGenerator {
 		switch type.keyword {
 			case BYTE,			
 			case SHORT:
-				'''SMALLINT'''
+				'''smallint'''
 			case INT:
-			    '''INT'''	
+			    '''int'''	
 			case LONG:
-			    '''BIGINT'''			
+			    '''bigint'''			
 		}
 	}
 		 
 	def dispatch encode(OtherType type) {
 		switch type.keyword {
 			case DATETIME:
-				'''TIMESTAMP'''			
+				'''timestamp'''			
 			case BOOL:
-				'''BOOL'''
+				'''boolean'''
 			case GUID:
-			    '''UUID'''			
+			    '''uuid'''			
 		}
 	}
 	
 	override toSerialType(IntegerType type) {
 	   switch type.keyword{
 	   	 case LONG:
-	   	 	'''BIGSERIAL'''
+	   	 	'''bigserial'''
 	   	 case INT:
-	   	 	'''SERIAL'''
+	   	 	'''serial'''
 	   	 default:
-	   	 	'''SMALLSERIAL'''
+	   	 	'''smallserial'''
 	   }
 	}
 	

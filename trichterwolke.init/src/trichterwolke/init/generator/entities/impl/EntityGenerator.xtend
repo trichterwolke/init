@@ -52,9 +52,6 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 			[Table("«entity.toTableName»")]
 			public class «entity.name» : «IF entity.hasCustomKey»IEquatable<«entity.name»>«ELSE»EntityBase<«entity.name», «getKeyType(entity).toType»>«ENDIF»
 			{
-		        /// <summary>
-		        /// Gets or sets the «entity.name.toNaturalName»
-		        /// </summary>
 				«FOR attribute : entity.attributes SEPARATOR '\n'»
 					«generateProperty(attribute)»
 				«ENDFOR»
@@ -111,10 +108,16 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		«ENDIF»
 		«generateStringLenghtAttribute(attribute)»
 		«IF attribute.isReference»
+		/// <summary>
+		/// Gets or sets the «attribute.name.toNaturalName» id.	
+		/// </summary>
 		[Column("«attribute.toAttributeName»_id")]
-		public «getKeyType(attribute.referencedEntity).toType» «attribute.name»ID { get; set; }
+		public «getKeyType(attribute.referencedEntity).toType» «attribute.name»Id { get; set; }
 
 		«ENDIF»
+		/// <summary>
+		/// Gets or sets the «attribute.name.toNaturalName».	
+		/// </summary>
 		[Column("«attribute.toAttributeName»")]
 		public «attribute.type.toType» «attribute.name» { get; set; }
 	'''
@@ -151,7 +154,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		        public TKey Id { get; set; }
 		
 		        /// <summary>
-		        /// Indicates whether this instance and another entity of the same type have the same ID.
+		        /// Indicates whether this instance and another entity of the same type have the same Id.
 		        /// </summary>
 		        /// <param name="obj">An entity to compare with this entity</param>
 		        /// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
@@ -161,7 +164,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		        }
 		
 		        /// <summary>
-		        /// Indicates whether this instance and another entity of the same type have the same ID.
+		        /// Indicates whether this instance and another entity of the same type have the same Id.
 		        /// </summary>
 		        /// <param name="obj">An entity to compare with this entity</param>
 		        /// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
@@ -172,11 +175,11 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 					    return false;
 					}
 		
-		            return other.Id.equals(Id); 
+		            return other.Id.Equals(Id); 
 		        }
 		
 		        /// <summary>
-		        /// Serves the default hash function of the ID
+		        /// Serves the default hash function of the Id
 		        /// </summary>
 		        /// <returns></returns>
 		        public override int GetHashCode()

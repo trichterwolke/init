@@ -29,7 +29,7 @@ class ModelHelper implements IModelHelper {
 		
 		if(key.size == 0) {
 			var attribute = InitFactory.eINSTANCE.createAttribute();
-			attribute.name = "ID";
+			attribute.name = "Id";
 			key.add(attribute);
 		}
 		

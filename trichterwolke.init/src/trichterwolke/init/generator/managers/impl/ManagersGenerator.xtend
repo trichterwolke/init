@@ -1,4 +1,4 @@
-package trichterwolke.init.generator.services.impl
+package trichterwolke.init.generator.managers.impl
 
 import com.google.inject.Inject
 import org.eclipse.emf.ecore.resource.Resource
@@ -7,10 +7,10 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import trichterwolke.init.generator.GeneratorBase
 import trichterwolke.init.generator.ICSharpGenerator
 import trichterwolke.init.generator.IModelHelper
-import trichterwolke.init.generator.services.IServicesGenerator
+import trichterwolke.init.generator.managers.IManagersGenerator
 import trichterwolke.init.init.Entity
 
-class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
+class ManagersGenerator extends GeneratorBase implements IManagersGenerator {
 	
 	@Inject
 	extension IModelHelper
@@ -23,30 +23,30 @@ class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
 		
 		var entities = input.allContents.filter(Entity).toList();	
 		
-		this.fsa.generateFile('''«this.namespace».Services/ICrudService.cs''', generateICrudDalContent());
-		this.fsa.generateFile('''«this.namespace».Services/EntityFramework/CrudService.cs''', generateCrudServiceContent());	
-		this.fsa.generateFile('''«this.namespace».Services/EntityFramework/EntityContext.cs''', generateEntityContextContent(entities));		
+		this.fsa.generateFile('''«this.namespace».Managers/ICrudManager.cs''', generateICrudDalContent());
+		this.fsa.generateFile('''«this.namespace».Managers/EntityFramework/CrudManager.cs''', generateCrudManagerContent());	
+		this.fsa.generateFile('''«this.namespace».Managers/EntityFramework/EntityContext.cs''', generateEntityContextContent(entities));		
 		
 		entities.forEach[generateFile];
 	}
 	
 	def generateFile(Entity entity) {
-		this.fsa.generateFile('''«this.namespace».Services/I«entity.name»Service.cs''', generateServiceInterfaceContent(entity));
-		this.fsa.generateFile('''«this.namespace».Services/EntityFramework/«entity.name»Service.cs''', generateServiceContent(entity));
+		this.fsa.generateFile('''«this.namespace».Managers/I«entity.name»Manager.cs''', generateManagerInterfaceContent(entity));
+		this.fsa.generateFile('''«this.namespace».Managers/EntityFramework/«entity.name»Manager.cs''', generateManagerContent(entity));
 	}
 				
-	def generateServiceInterfaceContent(Entity entity)'''
+	def generateManagerInterfaceContent(Entity entity)'''
 		using System;
 		using «namespace».Entities;
 		
-		namespace «this.namespace».Services
+		namespace «this.namespace».Managers
 		{			
-			public interface I«entity.name»Service : ICrudService<«entity.name»>
+			public interface I«entity.name»Manager : ICrudManager<«entity.name»>
 			{
 			}
 		}'''	
  	
-	def generateServiceContent(Entity entity)'''
+	def generateManagerContent(Entity entity)'''
 		using System;
 		using System.Collections.Generic;
 		using System.Linq;
@@ -54,29 +54,29 @@ class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
 		using Microsoft.EntityFrameworkCore;
 		using Trichterwolke.Sisyphus.Entities;
 		
-		namespace «this.namespace».Services.EntityFramework
+		namespace «this.namespace».Managers.EntityFramework
 		{
-		    public class «entity.name»Service : CrudService<«entity.name»>, I«entity.name»Service
+		    public class «entity.name»Manager : CrudManager<«entity.name»>, I«entity.name»Manager
 		    {
-		        public «entity.name»Service(EntityContext context) 
+		        public «entity.name»Manager(EntityContext context) 
 		            : base(context)
 		        {
 		        }
 		    }
 		}'''
 		
-	def generateCrudServiceContent()'''
+	def generateCrudManagerContent()'''
 		using System;
 		using System.Collections.Generic;
 		using System.Threading.Tasks;
 		using Microsoft.EntityFrameworkCore;
 		
-		namespace «this.namespace».Services.EntityFramework
+		namespace «this.namespace».Managers.EntityFramework
 		{
-			public class CrudService<T> : ICrudService<T>
+			public class CrudManager<T> : ICrudManager<T>
 			    where T: class
 			{
-			    public CrudService(EntityContext context)
+			    public CrudManager(EntityContext context)
 			    {
 			        Context = context;
 			    }
@@ -119,9 +119,9 @@ class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
 		using System.Collections.Generic;
 		using System.Threading.Tasks;
 		
-		namespace «this.namespace».Services
+		namespace «this.namespace».Managers
 		{
-		    public interface ICrudService<T>
+		    public interface ICrudManager<T>
 		    {
 				Task DeleteAsync(params object[] keyValues);
 				Task<IEnumerable<T>> FindAllAsync();
@@ -135,7 +135,7 @@ class ServicesGenerator extends GeneratorBase implements IServicesGenerator {
 		using Microsoft.EntityFrameworkCore;
 		using «this.namespace».Entities;
 		
-		namespace «this.namespace».Services.EntityFramework
+		namespace «this.namespace».Managers.EntityFramework
 		{
 		    public class EntityContext : DbContext
 		    {

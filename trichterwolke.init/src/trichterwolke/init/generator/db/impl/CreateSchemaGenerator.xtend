@@ -62,7 +62,8 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 	def generateForeignKey(Entity entity)'''	
 		«FOR attribute : entity.attributes.filter(a | isReference(a))»
 			ALTER TABLE «entity.toTableName.quote»
-			ADD CONSTRAINT «attribute.toAttributeName»_fkey FOREIGN KEY («attribute.toAttributeName»_id) REFERENCES «attribute.referencedEntity.toTableName.quote» (id);		
+			ADD CONSTRAINT «entity.toTableName»_«attribute.toAttributeName»_fkey FOREIGN KEY («attribute.toAttributeName»_id) REFERENCES «attribute.referencedEntity.toTableName.quote» (id);					
+			CREATE INDEX «entity.toTableName»_«attribute.toAttributeName»_idx ON «entity.toTableName» («attribute.toAttributeName»_id);
 			
 		«ENDFOR»								
 	'''	

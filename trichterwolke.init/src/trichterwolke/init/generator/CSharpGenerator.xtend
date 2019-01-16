@@ -18,11 +18,11 @@ class CSharpGenerator implements ICSharpGenerator {
    		'''«FOR key : entity.key SEPARATOR ", "»«key.toParameterName»«ENDFOR»'''
 
 	override toParameterName(Attribute attribute) {
-		if (attribute.name.equals("ID")) {
+		if ("Id".equals(attribute.name)) {
 			return "id"
 		}
 		else if (attribute.isReference) {
-			return '''«attribute.name.toFirstLower»ID'''
+			return '''«attribute.name.toFirstLower»Id'''
 		}
 		else {
 			return attribute.name.toFirstLower;
@@ -30,11 +30,11 @@ class CSharpGenerator implements ICSharpGenerator {
 	}
 	
 	override toPropertyName(Attribute attribute) {
-		if (attribute.name.equals("ID")) {
+		if ("Id".equals(attribute.name)) {
 			return "id"
 		}
 		else if (attribute.isReference) {
-			return '''«attribute.name»ID''' 
+			return '''«attribute.name»Id''' 
 		}
 		else {
 			return attribute.name;
@@ -42,7 +42,7 @@ class CSharpGenerator implements ICSharpGenerator {
 	}	
 	
 	override toParameterType(Attribute attribute) {
-		if (attribute.name.equals("ID")) {
+		if ("Id".equals(attribute.name)) {
 			return "int"
 		}
 		else if (attribute.isReference) {
@@ -55,7 +55,11 @@ class CSharpGenerator implements ICSharpGenerator {
 	
 	override toParameterName(Entity entity){
 		return entity.name.toFirstLower
-	}	
+	}		
+	
+	override toFieldName(Entity entity)
+		'''_«entity.name.toFirstLower»'''
+	
 	
 	override toShortName(Entity entity){
 		return entity.name.toShortName;

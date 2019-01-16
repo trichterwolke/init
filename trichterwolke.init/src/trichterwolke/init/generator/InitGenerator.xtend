@@ -13,7 +13,7 @@ import trichterwolke.init.generator.db.ICreateSchemaGenerator
 import trichterwolke.init.generator.db.IDropSchemaGenerator
 import trichterwolke.init.generator.entities.IEntityGenerator
 import trichterwolke.init.generator.entities.IEnumerationGenerator
-import trichterwolke.init.generator.services.IServicesGenerator
+import trichterwolke.init.generator.managers.IManagersGenerator
 
 /**
  * Generates code from your model files on save.
@@ -35,7 +35,7 @@ class InitGenerator extends AbstractGenerator {
 	IDropSchemaGenerator dropSchemaGenerator;
 	
 	@Inject
-	IServicesGenerator serviceGenerator;
+	IManagersGenerator serviceGenerator;
 	
 	@Inject
 	IControllerGenerator controllerGenerator;
