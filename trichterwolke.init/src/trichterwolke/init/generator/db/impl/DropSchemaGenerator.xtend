@@ -23,7 +23,7 @@ class DropSchemaGenerator extends GeneratorBase implements IDropSchemaGenerator 
 		
 		var entities = input.allContents.filter(Entity).toList;
 		var content = generateContent(entities);
-	    this.fsa.generateFile('drop_schema.sql', content);	
+	    this.fsa.generateFile('db/drop_schema.sql', content);	
 	}
 		
 	def generateContent(Iterable<Entity> entities)'''		

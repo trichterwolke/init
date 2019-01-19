@@ -21,9 +21,13 @@ class ModelHelper implements IModelHelper {
 	}
 	
    	override hasCustomKey(Entity entity) {   		
-   		entity.attributes.exists(a | a.isKey)
-	}
+   		entity.attributes.exists(a | a.key)
+	}   	
 	
+	override hasUnique(Entity entity) {   		
+   		entity.attributes.exists(a | a.unique)
+	}
+		
 	override getKey(Entity entity) {
 		var key = entity.attributes.filter(a | a.isKey).toList() 	
 		

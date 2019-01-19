@@ -7,10 +7,14 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import trichterwolke.init.generator.GeneratorBase
 import trichterwolke.init.generator.ICSharpGenerator
 import trichterwolke.init.generator.IModelHelper
+import trichterwolke.init.generator.ITypeGenerator
 import trichterwolke.init.generator.controller.IControllerGenerator
 import trichterwolke.init.init.Entity
 
 class ControllerGenerator extends GeneratorBase implements IControllerGenerator {					
+	
+	@Inject
+	extension ITypeGenerator	
 	
 	@Inject
 	extension IModelHelper	
@@ -20,15 +24,12 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 					
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
-		
-		var startup = generateStartup(input.allContents.filter(Entity).toList);
-		this.fsa.generateFile('''«this.namespace»/Startup.txt''', startup);
-				
+						
 	    input.allContents.filter(Entity).forEach[generateFile];		   
 	}
 	
 	def generateFile(Entity entity) {
-		this.fsa.generateFile('''«this.namespace»/Controllers/«entity.name»Controller.cs''', generateContent(entity));
+		this.fsa.generateFile('''src/«this.namespace»/Controllers/«entity.name»Controller.cs''', generateContent(entity));
 	}
 				
 	def generateContent(Entity entity)'''
@@ -38,6 +39,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		using Microsoft.AspNetCore.Authorization;
 		using Microsoft.AspNetCore.Mvc;
 		using Trichterwolke.Sisyphus.Entities;
+		using Trichterwolke.Sisyphus.Extensions;
 		using Trichterwolke.Sisyphus.Managers;
 		
 		namespace «this.namespace».Controller 
@@ -60,7 +62,30 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				{
 				    «entity.toFieldName»Manager = «entity.toParameterName»Manager;
 				}
-		
+
+				/// <summary>
+				/// Adds a «entity.name.toNaturalName».
+				/// </summary>
+				/// <param name="«entity.toParameterName»">The «entity.name.toNaturalName» to insert</param>
+				/// <returns>The id of the «entity.name.toNaturalName»</returns>
+				[HttpPost]
+				public async Task<ActionResult«IF !entity.hasCustomKey»<«getKeyType(entity).toType»>«ENDIF»> Add([FromBody] «entity.toParameterDeclaration»)
+				{
+					«IF entity.hasUnique»
+						var validation = await «entity.toFieldName»Manager.ValidateAdd(«entity.toParameterName»);
+						ModelState.AddValidationResults(validation);
+						
+						if(!ModelState.IsValid)
+						{
+						    return ValidationProblem();
+						}
+
+		            «ENDIF»
+					await «entity.toFieldName»Manager.AddAsync(«entity.toParameterName»);
+					
+				    return Ok(«IF !entity.hasCustomKey»«entity.toParameterName».Id«ENDIF»);
+				}
+
 				/// <summary>
 		        /// Returns all «entity.name.toNaturalName»s.
 		        /// </summary>
@@ -69,6 +94,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				public async Task<ActionResult<IEnumerable<«entity.name»>>> FindAll()
 				{
 					var result = await «entity.toFieldName»Manager.FindAllAsync();
+					
 				    return Ok(result);
 				}
 		
@@ -86,22 +112,35 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 					{
 					    return NotFound();
 					}
-					else
-					{
-					    return Ok(result);
-					}
-				}
-		
-				/// <summary>
-				/// Inserts a «entity.name.toNaturalName».
-				/// </summary>
-				/// <param name="«entity.toParameterName»">The «entity.name.toNaturalName» to insert</param>
-				/// <returns>The id of the «entity.name.toNaturalName»</returns>
-				[HttpPost]
-				public async Task<ActionResult«IF !entity.hasCustomKey»<int?>«ENDIF»> Insert([FromBody] «entity.name» «entity.toParameterName»)
+
+					return Ok(result);
+				}		
+
+		        /// <summary>
+		        /// Removes the «entity.name.toNaturalName» with the given id.
+		        /// </summary>
+		        /// <param name="id">Primary key of the «entity.name.toNaturalName»</param>
+				[HttpDelete("«generateHttpParameters(entity)»")]
+				public async Task<IActionResult> Remove(«generateParametersDeclaration(entity)»)
 				{
-					await «entity.toFieldName»Manager.InsertAsync(«entity.toParameterName»);
-				    return Ok(«IF !entity.hasCustomKey»«entity.toParameterName».Id«ENDIF»);
+					var «entity.toParameterName» = new «entity.name»(«generateParameters(entity)»);
+
+					«IF isReferenced(entity)»
+						var validation = await «entity.toFieldName»Manager.ValidateRemove(«entity.toParameterName»);
+						ModelState.AddValidationResults(validation);
+						
+						if(!ModelState.IsValid)
+						{
+						    return ValidationProblem();
+						}
+						
+		            «ENDIF»
+				    if (!await «entity.toFieldName»Manager.RemoveAsync(«entity.toParameterName»))
+				    {
+				    	return NotFound();
+				    }
+				    
+				    return Ok();
 				}
 		
 		        /// <summary>
@@ -110,22 +149,25 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		        /// <param name="id">Primary key of the «entity.name.toNaturalName»</param>
 		        /// <param name="«entity.toParameterName»">The «entity.name.toNaturalName» to updade</param>
 				[HttpPut("«generateHttpParameters(entity)»")]
-				public async Task<ActionResult> Update(«generateParametersDeclaration(entity)», [FromBody] «entity.name» «entity.toParameterName»)
+				public async Task<IActionResult> Update(«generateParametersDeclaration(entity)», [FromBody] «entity.name» «entity.toParameterName»)
 				{
 					«generatePropertyAssignment(entity)»
-
-				    await «entity.toFieldName»Manager.UpdateAsync(«entity.toParameterName»);
-				    return Ok();
-				}
-
-		        /// <summary>
-		        /// Deletes the «entity.name.toNaturalName» with the given id.
-		        /// </summary>
-		        /// <param name="id">Primary key of the «entity.name.toNaturalName»</param>
-				[HttpDelete("«generateHttpParameters(entity)»")]
-				public async Task<ActionResult> Delete(«generateParametersDeclaration(entity)»)
-				{
-				    await «entity.toFieldName»Manager.DeleteAsync(«generateParameters(entity)»);
+					
+					«IF entity.hasUnique»
+						var validation = await «entity.toFieldName»Manager.ValidateUpdate(«entity.toParameterName»);
+						ModelState.AddValidationResults(validation);
+						
+						if(!ModelState.IsValid)
+						{
+						    return ValidationProblem();
+						}
+						
+		            «ENDIF»
+				    if(!await «entity.toFieldName»Manager.UpdateAsync(«entity.toParameterName»))
+				    {
+				    	return NotFound();
+				    }
+				    
 				    return Ok();
 				}
 			}
@@ -148,27 +190,5 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 			«entity.toParameterName».Id = id;
 		«ENDIF»
 	'''
-	
-	def generateStartup(Iterable<Entity> entities)'''
-		using Microsoft.Extensions.DependencyInjection;
-		using Trichterwolke.Sisyphus.Dal;
-		using Trichterwolke.Sisyphus.Dal.Dapper;
-		using Trichterwolke.Sisyphus.Managers;
-		using Trichterwolke.Sisyphus.Managers.EntityFramework;
-		
-		public class Startup
-		{
-		    public void ConfigureServices(IServiceCollection services)
-		    {
-		    	// add this ...
-		        «FOR entity : entities»
-		        services.AddTransient<I«entity.name»Dal, «entity.name»Dal>();
-		        «ENDFOR»
-		        
-		        // or this to your Startup class
-		        «FOR entity : entities»
-		        services.AddTransient<I«entity.name»Manager, «entity.name»Manager>();
-		        «ENDFOR»
-		    }
-		}'''	
+
 }

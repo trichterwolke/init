@@ -10,17 +10,17 @@ class DalGenerator extends GeneratorBase /*implements IDalGenerator*/ {
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 				
-		this.fsa.generateFile('''«this.namespace».Dal/ICrudDal.cs''', generateICrudDalContent());
-		this.fsa.generateFile('''«this.namespace».Dal/Dapper/CrudDalBase.cs''', generateCrudDalBaseContent());		
-		this.fsa.generateFile('''«this.namespace».Dal/IDbConnectionFactory.cs''', generateConnectionFactoryInterfaceContent());
-		this.fsa.generateFile('''«this.namespace».Dal/Dapper/NpgsqlConnectionFactory.cs''', generateConnectionFactoryContent());		
+		this.fsa.generateFile('''src/«this.namespace».Dal/ICrudDal.cs''', generateICrudDalContent());
+		this.fsa.generateFile('''src/«this.namespace».Dal/Dapper/CrudDalBase.cs''', generateCrudDalBaseContent());		
+		this.fsa.generateFile('''src/«this.namespace».Dal/IDbConnectionFactory.cs''', generateConnectionFactoryInterfaceContent());
+		this.fsa.generateFile('''src/«this.namespace».Dal/Dapper/NpgsqlConnectionFactory.cs''', generateConnectionFactoryContent());		
 		
 	    input.allContents.filter(Entity).forEach[generateFile];		  
 	}
 	
 	def generateFile(Entity entity) {
-		this.fsa.generateFile('''«this.namespace».Dal/I«entity.name»Dal.cs''', generateDalInterfaceContent(entity));
-		this.fsa.generateFile('''«this.namespace».Dal/Dapper/«entity.name»Dal.cs''', generateDalContent(entity));
+		this.fsa.generateFile('''src/«this.namespace».Dal/I«entity.name»Dal.cs''', generateDalInterfaceContent(entity));
+		this.fsa.generateFile('''src/«this.namespace».Dal/Dapper/«entity.name»Dal.cs''', generateDalContent(entity));
 	}
 				
 	def generateDalInterfaceContent(Entity entity)'''

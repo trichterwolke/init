@@ -29,6 +29,7 @@ class CSharpGenerator implements ICSharpGenerator {
 		}
 	}
 	
+	
 	override toPropertyName(Attribute attribute) {
 		if ("Id".equals(attribute.name)) {
 			return "id"
@@ -53,9 +54,13 @@ class CSharpGenerator implements ICSharpGenerator {
 		}
 	}
 	
-	override toParameterName(Entity entity){
+	override toParameterName(Entity entity) {
 		return entity.name.toFirstLower
-	}		
+	}
+	
+	override toParameterDeclaration(Entity entity)
+		'''«entity.name» «entity.toParameterName»'''	
+	
 	
 	override toFieldName(Entity entity)
 		'''_«entity.name.toFirstLower»'''

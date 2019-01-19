@@ -31,12 +31,12 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 
-		this.fsa.generateFile('''«this.namespace».Entities/EntityBase.cs''', generateEntityBase);		
+		this.fsa.generateFile('''src/«this.namespace».Entities/EntityBase.cs''', generateEntityBase);		
 	    input.allContents.filter(Entity).forEach[generateFile];		  
 	}
 	
 	def generateFile(Entity entity) {
-		this.fsa.generateFile('''«this.namespace».Entities/«entity.name».cs''', generateContent(entity));
+		this.fsa.generateFile('''src/«this.namespace».Entities/«entity.name».cs''', generateContent(entity));
 	}
 				
 	def generateContent(Entity entity)'''
@@ -52,6 +52,34 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 			[Table("«entity.toTableName»")]
 			public class «entity.name» : «IF entity.hasCustomKey»IEquatable<«entity.name»>«ELSE»EntityBase<«entity.name», «getKeyType(entity).toType»>«ENDIF»
 			{
+				«IF !entity.hasCustomKey»
+					/// <summary>
+					/// Creates a new instance.
+					/// </summary>
+					public «entity.name»()
+					{
+					}
+					
+					/// <summary>
+					/// Creates an new instance.
+					/// </summary>
+					/// <param name="id">primary key</param>
+					public «entity.name»(«getKeyType(entity).toType» id)
+						: base(id)
+					{
+					}
+				«ELSE»
+					/// <summary>
+					/// Creates a new instance.
+					/// </summary>
+					public «entity.name»(«entity.generateParametersDeclaration»)
+					{
+						«FOR attribute : entity.key»
+							«attribute.name»Id = «attribute.name.toFirstLower»Id;				
+						«ENDFOR»
+					}
+				«ENDIF»
+		
 				«FOR attribute : entity.attributes SEPARATOR '\n'»
 					«generateProperty(attribute)»
 				«ENDFOR»
@@ -112,7 +140,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		/// Gets or sets the «attribute.name.toNaturalName» id.	
 		/// </summary>
 		[Column("«attribute.toAttributeName»_id")]
-		public «getKeyType(attribute.referencedEntity).toType» «attribute.name»Id { get; set; }
+		public «getKeyType(attribute.referencedEntity).toType»«IF attribute.type.nullable»?«ENDIF» «attribute.name»Id { get; set; }
 
 		«ENDIF»
 		/// <summary>
@@ -146,6 +174,22 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		    public class EntityBase<T, TKey> : IEquatable<T>
 		        where T : EntityBase<T, TKey>
 		    {
+				/// <summary>
+				/// Creates a new instance
+				/// </summary>
+				public EntityBase()
+				{
+				}
+				
+				/// <summary>
+				/// Creates an new instance
+				/// </summary>
+				/// <param name="id">primary key</param>
+				public EntityBase(TKey id)
+				{
+				    Id = id;
+				}
+		    	
 		        /// <summary>
 		        /// The primary key
 		        /// </summary>

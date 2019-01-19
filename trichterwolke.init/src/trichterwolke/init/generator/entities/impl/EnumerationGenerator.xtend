@@ -21,7 +21,7 @@ class EnumerationGenerator extends GeneratorBase implements IEnumerationGenerato
 	}
 	
 	def generateFile(Enumeration enumeration) {
-		this.fsa.generateFile('''«this.namespace».Entities/«enumeration.name».cs''', generateContent(enumeration));
+		this.fsa.generateFile('''src/«this.namespace».Entities/«enumeration.name».cs''', generateContent(enumeration));
 	}
 				
 	def generateContent(Enumeration enumeration)'''

@@ -27,7 +27,7 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 		
 		var entities = input.allContents.filter(Entity).toList;
 		var content = generateContent(entities);
-	    this.fsa.generateFile('create_schema.sql', content);	
+	    this.fsa.generateFile('db/create_schema.sql', content);	
 	}
 		
 	def generateContent(Iterable<Entity> entities)'''	
@@ -51,7 +51,6 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 		«generateCustomPrimaryKey(entity)»
 		«ENDIF»
 	)'''
-
 	
 	def generateForeignKeys(Iterable<Entity> entities)'''
 		«FOR entity : entities»	
@@ -64,7 +63,7 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 			ALTER TABLE «entity.toTableName.quote»
 			ADD CONSTRAINT «entity.toTableName»_«attribute.toAttributeName»_fkey FOREIGN KEY («attribute.toAttributeName»_id) REFERENCES «attribute.referencedEntity.toTableName.quote» (id);					
 			CREATE INDEX «entity.toTableName»_«attribute.toAttributeName»_idx ON «entity.toTableName» («attribute.toAttributeName»_id);
-			
+
 		«ENDFOR»								
 	'''	
 	
