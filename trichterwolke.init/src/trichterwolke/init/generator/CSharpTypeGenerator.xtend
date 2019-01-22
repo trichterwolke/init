@@ -12,9 +12,9 @@ class CSharpTypeGenerator implements ITypeGenerator {
 		type.encode	
 	}
 		
-	def dispatch encode(DefinedType type)
-		'''«type.type.name»''' 
-	
+	def dispatch encode(DefinedType type)						
+		'''«type.type.name»'''
+		
 	def dispatch encode(CharacterType type) {
 		if (type.size == 1)
 	   		'char'
@@ -27,7 +27,7 @@ class CSharpTypeGenerator implements ITypeGenerator {
 			case DOUBLE:
 				'''double'''			
 			case SINGLE:
-				'''single'''
+				'''float'''
 			case DECIMAL:
 			    '''decimal'''			
 		}
@@ -49,11 +49,13 @@ class CSharpTypeGenerator implements ITypeGenerator {
 	def dispatch encode(OtherType type) {
 		switch type.keyword {
 			case DATETIME:
-				'''DateTime'''			
+				'''DateTime'''
+			case TIMESTAMP:
+				'''DateTimeOffset'''			
 			case BOOL:
 				'''bool'''
 			case GUID:
-			    '''Guid'''			
+			    '''Guid'''				
 		}
 	}
 }

@@ -164,7 +164,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		using System.ComponentModel.DataAnnotations;
 		using System.ComponentModel.DataAnnotations.Schema;
 		
-		namespace Trichterwolke.Sisyphus.Entities
+		namespace «this.namespace».Entities
 		{
 		    /// <summary>
 		    /// Base class for an entity with an non composit primary key

@@ -25,7 +25,8 @@ class PostgresGenerator implements IDbGenerator {
 	override quote(String name) {			
 		switch(name) {
 			case "end",
-			case "begin":
+			case "begin",
+			case "user":
 				return '''"«name»"'''
 			default:
 				return name
@@ -74,7 +75,9 @@ class PostgresGenerator implements IDbGenerator {
 	def dispatch encode(OtherType type) {
 		switch type.keyword {
 			case DATETIME:
-				'''timestamp'''			
+				'''timestamp'''
+			case TIMESTAMP:
+				'''timestamp with time zone'''	
 			case BOOL:
 				'''boolean'''
 			case GUID:
@@ -91,6 +94,5 @@ class PostgresGenerator implements IDbGenerator {
 	   	 default:
 	   	 	'''smallserial'''
 	   }
-	}
-	
+	}	
 }

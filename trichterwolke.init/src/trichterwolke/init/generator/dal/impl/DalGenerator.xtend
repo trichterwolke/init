@@ -25,7 +25,7 @@ class DalGenerator extends GeneratorBase /*implements IDalGenerator*/ {
 				
 	def generateDalInterfaceContent(Entity entity)'''
 		using System;
-		using Trichterwolke.Sisyphus.Entities;
+		using «this.namespace».Entities;
 		
 		namespace «this.namespace».Dal
 		{			
@@ -36,7 +36,7 @@ class DalGenerator extends GeneratorBase /*implements IDalGenerator*/ {
 				
 	def generateDalContent(Entity entity)'''
 		using System;
-		using Trichterwolke.Sisyphus.Entities;
+		using «this.namespace».Entities;
 		
 		namespace «this.namespace».Dal.Dapper
 		{			

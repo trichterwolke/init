@@ -353,7 +353,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		
 	def generateDependencyInjectionSetup(Iterable<Entity> entities)'''
 		using Microsoft.Extensions.DependencyInjection;
-		using Trichterwolke.Sisyphus.Managers.EntityFramework;
+		using «this.namespace».Managers.EntityFramework;
 		
 		namespace «this.namespace».Managers
 		{
@@ -376,5 +376,27 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 				    return services;
 				}
 			}
-		}'''	
+		}'''
+		
+		def generateExtensions()'''
+		using System;
+		using System.Collections.Generic;
+		using System.ComponentModel.DataAnnotations;
+		using System.Linq;
+		using System.Threading.Tasks;
+		using Microsoft.AspNetCore.Mvc.ModelBinding;
+		
+		namespace «this.namespace».Extensions
+		{
+		    public static class ModelStateExtentions
+		    {
+		        public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
+		        {
+		            foreach (var validationResult in validationResults)
+		            {
+		                modelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
+		            }
+		        }
+		    }
+		}'''
 }

@@ -25,7 +25,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 						
-	    input.allContents.filter(Entity).forEach[generateFile];		   
+		 input.allContents.filter(Entity).forEach[generateFile];
 	}
 	
 	def generateFile(Entity entity) {
@@ -38,9 +38,9 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		using System.Threading.Tasks;
 		using Microsoft.AspNetCore.Authorization;
 		using Microsoft.AspNetCore.Mvc;
-		using Trichterwolke.Sisyphus.Entities;
-		using Trichterwolke.Sisyphus.Extensions;
-		using Trichterwolke.Sisyphus.Managers;
+		using «this.namespace».Entities;
+		using «this.namespace».Extensions;
+		using «this.namespace».Managers;
 		
 		namespace «this.namespace».Controller 
 		{   
@@ -189,6 +189,5 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		«ELSE»
 			«entity.toParameterName».Id = id;
 		«ENDIF»
-	'''
-
+	'''	
 }

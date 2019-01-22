@@ -66,4 +66,4 @@ OtherType:
 	keyword=OtherKeyword;
 
 enum OtherKeyword:
-	datetime | bool | guid;
+	datetime | timestamp | bool | guid;
