@@ -42,7 +42,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		using «this.namespace».Extensions;
 		using «this.namespace».Managers;
 		
-		namespace «this.namespace».Controller 
+		namespace «this.namespace».Controllers
 		{   
 		    /// <summary>
 		    /// Rest Api controller for «entity.name.toNaturalName».

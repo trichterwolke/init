@@ -23,6 +23,8 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		
 		var entities = input.allContents.filter(Entity).toList();	
 
+		this.fsa.generateFile('''src/«this.namespace».Managers/Extensions/ModelStateExtentions.cs''', generateExtensions());
+	   
 		this.fsa.generateFile('''src/«this.namespace».Managers/ICrudManager.cs''', generateICrudDalContent());
 		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/CrudManager.cs''', generateCrudManagerContent());	
 		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/EntityContext.cs''', generateEntityContextContent(entities));		
