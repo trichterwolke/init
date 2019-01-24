@@ -109,6 +109,20 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		        {
 		        }
 
+				«FOR attribute : entity.attributes.filter(a | a.unique)»
+					/// <summary>
+					/// Returns a single «entity.name.toNaturalName» with the given «attribute.name.toNaturalName»
+					/// </summary>
+					/// <param name="«attribute.toParameterName»">«attribute.name.toNaturalName» of the «entity.name.toNaturalName»</param>
+					/// <returns>A «entity.name.toNaturalName»</returns>
+					public async Task<«entity.name»> FindBy«attribute.toPropertyName»(«attribute.toParameterDeclaration»)
+					{
+					    return await Context.«entity.name»s
+					        .Where(«entity.toShortName» => «entity.toShortName».«attribute.toPropertyName» == «attribute.toParameterName»)
+					        .SingleOrDefaultAsync();
+					}
+
+				«ENDFOR»
 				«IF entity.hasUnique»
 					/// <summary>
 					/// Validates the insertion of the given entity in the persistence store.
@@ -131,8 +145,9 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 					{
 						var results = new List<ValidationResult>();
 					
-						«FOR referencing : getReferencingEntities(entity)»		
-							if (await Context.«referencing.name»s.AnyAsync(«referencing.toShortName» => «referencing.toShortName».«entity.name»Id == «entity.toParameterName».Id))
+						«FOR attribute : getReferencingAttributes(entity)»
+							«var referencing = getEntity(attribute)»	
+							if (await Context.«referencing.name»s.AnyAsync(«referencing.toShortName» => «referencing.toShortName».«attribute.name»Id == «entity.toParameterName».Id))
 							{
 							    results.Add("This «entity.name.toNaturalName» is referenced by a «referencing.name.toNaturalName»");
 							}

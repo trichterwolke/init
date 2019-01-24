@@ -6,7 +6,7 @@ import trichterwolke.init.init.Entity
 interface IModelHelper {
 	def Boolean isReference(Attribute attribute) 
 	
-	def Entity getReferencedEntity(Attribute attribute) 
+	def Entity getReferencedEntity(Attribute attribute)	
 	
 	def boolean hasCustomKey(Entity entity)
 	
@@ -14,5 +14,5 @@ interface IModelHelper {
 		
 	def Iterable<Attribute> getKey(Entity entity)
 	
-	def Iterable<Entity> withCompositeKey(Iterable<Entity> entities)	
+	def Iterable<Entity> withCompositeKey(Iterable<Entity> entities)		
 }

@@ -29,7 +29,9 @@ class CSharpGenerator implements ICSharpGenerator {
 		}
 	}
 	
-	
+	override toParameterDeclaration(Attribute attribute)
+		'''«attribute.toParameterType» «attribute.toParameterName»'''
+		
 	override toPropertyName(Attribute attribute) {
 		if ("Id".equals(attribute.name)) {
 			return "id"

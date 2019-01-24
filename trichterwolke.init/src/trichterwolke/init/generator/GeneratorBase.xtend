@@ -10,6 +10,7 @@ import trichterwolke.init.init.Entity
 import trichterwolke.init.init.InitFactory
 import trichterwolke.init.init.IntegerKeyword
 import trichterwolke.init.init.IntegerType
+import trichterwolke.init.init.Attribute;
 
 class GeneratorBase extends AbstractGenerator {
 	
@@ -43,11 +44,17 @@ class GeneratorBase extends AbstractGenerator {
 			return entity.overrideKeyType;
 		} 
 	} 
-	
+	/* 
 	def protected isReferenced(Entity entity) {
 		input.allContents
 			.filter(Entity)
 			.exists(e | e.attributes.exists(a | a.reference && a.referencedEntity == entity))
+	}	
+	*/
+	def protected isReferenced(Entity entity) {
+		input.allContents
+			.filter(Attribute)
+			.exists(a | a.reference && a.referencedEntity == entity)
 	}
 	
 	def protected getReferencingEntities(Entity entity) {
@@ -55,5 +62,18 @@ class GeneratorBase extends AbstractGenerator {
 			.filter(Entity)
 			.filter(e | e.attributes.exists(a | a.reference && a.referencedEntity == entity))
 			.toIterable
+	}
+	 
+	def protected getReferencingAttributes(Entity entity) {
+		input.allContents
+			.filter(Attribute)
+			.filter(a | a.reference && a.referencedEntity == entity)
+			.toIterable
+	}
+	
+	def protected getEntity(Attribute attribute) {
+		input.allContents
+			.filter(Entity)
+			.findFirst(e | e.attributes.exists(a | a == attribute))
 	}
 }

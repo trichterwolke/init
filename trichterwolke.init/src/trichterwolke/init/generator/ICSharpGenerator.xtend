@@ -10,6 +10,8 @@ interface ICSharpGenerator {
 		
 	def CharSequence toParameterName(Attribute attribute);
 	
+	def CharSequence toParameterDeclaration(Attribute attribute);
+	
 	def CharSequence toPropertyName(Attribute attribute);
 	
 	def CharSequence toParameterType(Attribute attribute);
