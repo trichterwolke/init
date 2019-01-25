@@ -25,7 +25,8 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 						
-		 input.allContents.filter(Entity).forEach[generateFile];
+		this.fsa.generateFile('''src/«this.namespace»/Extensions/ModelStateExtentions.cs''', generateExtensions());
+		input.allContents.filter(Entity).forEach[generateFile];
 	}
 	
 	def generateFile(Entity entity) {
@@ -190,4 +191,26 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 			«entity.toParameterName».Id = id;
 		«ENDIF»
 	'''	
+			 
+	def generateExtensions()'''
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel.DataAnnotations;
+	using System.Linq;
+	using System.Threading.Tasks;
+	using Microsoft.AspNetCore.Mvc.ModelBinding;
+	
+	namespace «this.namespace».Extensions
+	{
+	    public static class ModelStateExtentions
+	    {
+	        public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
+	        {
+	            foreach (var validationResult in validationResults)
+	            {
+	                modelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
+	            }
+	        }
+	    }
+	}'''
 }

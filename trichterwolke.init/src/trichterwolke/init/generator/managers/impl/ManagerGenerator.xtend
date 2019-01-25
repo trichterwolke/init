@@ -22,11 +22,9 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		super.doGenerate(input, fsa, context);
 		
 		var entities = input.allContents.filter(Entity).toList();	
-
-		this.fsa.generateFile('''src/«this.namespace».Managers/Extensions/ModelStateExtentions.cs''', generateExtensions());
-	   
-		this.fsa.generateFile('''src/«this.namespace».Managers/ICrudManager.cs''', generateICrudDalContent());
-		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/CrudManager.cs''', generateCrudManagerContent());	
+		  
+		this.fsa.generateFile('''src/«this.namespace».Managers/IManagerBase.cs''', generateIManagerBaseContent());
+		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/ManagerBase.cs''', generateManagerBaseContent());	
 		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/EntityContext.cs''', generateEntityContextContent(entities));		
 		this.fsa.generateFile('''src/«this.namespace».Managers/DependencyInjectionSetup.cs''', generateDependencyInjectionSetup(entities));		
 		
@@ -50,8 +48,17 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 			/// <summary>
 			/// Provides the APIs for managing «entity.name.toNaturalName» in a persistence store.
 			/// </summary>
-			public interface I«entity.name»Manager : ICrudManager<«entity.name»>
+			public interface I«entity.name»Manager : IManagerBase<«entity.name»>
 			{
+				«FOR attribute : entity.attributes.filter(a | a.unique)»
+					/// <summary>
+					/// Returns a single «entity.name.toNaturalName» with the given «attribute.name.toNaturalName»
+					/// </summary>
+					/// <param name="«attribute.toParameterName»">«attribute.name.toNaturalName» of the «entity.name.toNaturalName»</param>
+					/// <returns>A «entity.name.toNaturalName»</returns>
+					Task<«entity.name»> FindBy«attribute.toPropertyName»Async(«attribute.toParameterDeclaration»);
+
+				«ENDFOR»
 				«IF entity.hasUnique»
 					/// <summary>
 					/// Validates the insertion of the given entity in the persistence store.
@@ -97,14 +104,14 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		    /// <summary>
 		    /// Provides the APIs for managing «entity.name.toNaturalName» in a persistence store.
 		    /// </summary>
-		    public class «entity.name»Manager : CrudManager<«entity.name»>, I«entity.name»Manager
+		    public class «entity.name»Manager : ManagerBase<«entity.name»>, I«entity.name»Manager
 		    {
 				/// <summary>
 				/// Creates an instance.
 				/// </summary>
 				/// <param name="context">Access to entity storage</param>
 				/// <param name="logger">Logging interface</param>
-		        public «entity.name»Manager(EntityContext context, ILogger logger) 
+		        public «entity.name»Manager(EntityContext context, ILogger<«entity.name»> logger) 
 		            : base(context, logger)
 		        {
 		        }
@@ -115,7 +122,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 					/// </summary>
 					/// <param name="«attribute.toParameterName»">«attribute.name.toNaturalName» of the «entity.name.toNaturalName»</param>
 					/// <returns>A «entity.name.toNaturalName»</returns>
-					public async Task<«entity.name»> FindBy«attribute.toPropertyName»(«attribute.toParameterDeclaration»)
+					public async Task<«entity.name»> FindBy«attribute.toPropertyName»Async(«attribute.toParameterDeclaration»)
 					{
 					    return await Context.«entity.name»s
 					        .Where(«entity.toShortName» => «entity.toShortName».«attribute.toPropertyName» == «attribute.toParameterName»)
@@ -180,7 +187,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		    }
 		}'''
 		
-	def generateCrudManagerContent()'''
+	def generateManagerBaseContent()'''
 		using System;
 		using System.Collections.Generic;
 		using System.Threading.Tasks;
@@ -193,7 +200,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		    /// Provides basic APIs for managing the entity T in a persistence store.
 		    /// </summary>
 		    /// <typeparam name="T">The entity type to manage</typeparam>
-		    public class CrudManager<T> : ICrudManager<T>
+		    public class ManagerBase<T> : IManagerBase<T>
 			    where T: class
 			{
 		        /// <summary>
@@ -201,7 +208,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		        /// </summary>
 		        /// <param name="context"></param>
 		        /// <param name="logger"></param>
-			    public CrudManager(EntityContext context, ILogger logger)
+			    public ManagerBase(EntityContext context, ILogger logger)
 			    {
 			        Context = context;
 		            Logger = logger;
@@ -288,14 +295,14 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		
 		                return false;
 		            }
-		                       
+
 		            return true;
 			    }
 			}
 		}
 		'''
 
-	def generateICrudDalContent()'''
+	def generateIManagerBaseContent()'''
 		using System.Collections.Generic;
 		using System.Threading.Tasks;
 		
@@ -305,7 +312,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		    /// Provides basic APIs for managing entites.
 		    /// </summary>
 		    /// <typeparam name="T"></typeparam>
-		    public interface ICrudManager<T>
+		    public interface IManagerBase<T>
 		    {
 		        /// <summary>
 		        /// Adds the given entity to storage.
@@ -348,7 +355,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		
 		namespace «this.namespace».Managers.EntityFramework
 		{
-		    public class EntityContext : DbContext
+		    public class EntityContext : MyIdentityDbContext
 		    {
 		        public EntityContext(DbContextOptions<EntityContext> options)
 		            : base(options)
@@ -360,6 +367,8 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		        
 		        protected override void OnModelCreating(ModelBuilder modelBuilder)
 		        {
+		        	base.OnModelCreating(modelBuilder);
+		        	
 		        	«FOR entity : entities.withCompositeKey»
 		        	modelBuilder.Entity<«entity.name»>()
 		        		.HasKey(«entity.toShortName» => new { «FOR attribute : entity.key SEPARATOR ", "»«entity.toShortName».«attribute.toPropertyName»«ENDFOR» });
@@ -393,27 +402,5 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 				    return services;
 				}
 			}
-		}'''
-		
-		def generateExtensions()'''
-		using System;
-		using System.Collections.Generic;
-		using System.ComponentModel.DataAnnotations;
-		using System.Linq;
-		using System.Threading.Tasks;
-		using Microsoft.AspNetCore.Mvc.ModelBinding;
-		
-		namespace «this.namespace».Extensions
-		{
-		    public static class ModelStateExtentions
-		    {
-		        public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
-		        {
-		            foreach (var validationResult in validationResults)
-		            {
-		                modelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
-		            }
-		        }
-		    }
 		}'''
 }
