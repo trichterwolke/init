@@ -18,6 +18,8 @@ interface ICSharpGenerator {
 	
 	def CharSequence toParameterName(Entity entity);
 	
+	def CharSequence toParameterAccess(Entity entity, Attribute attribute);
+	
 	def CharSequence toParameterDeclaration(Entity entity);
 	
 	def CharSequence toFieldName(Entity entity);

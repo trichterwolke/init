@@ -34,7 +34,7 @@ class CSharpGenerator implements ICSharpGenerator {
 		
 	override toPropertyName(Attribute attribute) {
 		if ("Id".equals(attribute.name)) {
-			return "id"
+			return "Id"
 		}
 		else if (attribute.isReference) {
 			return '''«attribute.name»Id''' 
@@ -42,7 +42,10 @@ class CSharpGenerator implements ICSharpGenerator {
 		else {
 			return attribute.name;
 		}
-	}	
+	}
+	
+	override toParameterAccess(Entity entity, Attribute attribute)
+		'''«entity.toParameterName».«attribute.toPropertyName»'''
 	
 	override toParameterType(Attribute attribute) {
 		if ("Id".equals(attribute.name)) {
@@ -78,6 +81,5 @@ class CSharpGenerator implements ICSharpGenerator {
 	
 	override toNaturalName(String text) {
 		text.replaceAll("(.)(\\p{Upper})", "$1 $2").toLowerCase();
-	}
-	
+	}	
 }

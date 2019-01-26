@@ -39,6 +39,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		using System.Threading.Tasks;
 		using Microsoft.AspNetCore.Authorization;
 		using Microsoft.AspNetCore.Mvc;
+		using Microsoft.Extensions.Logging;
 		using «this.namespace».Entities;
 		using «this.namespace».Extensions;
 		using «this.namespace».Managers;
@@ -54,14 +55,16 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 			public class «entity.name»Controller : ControllerBase
 			{
 				private readonly I«entity.name»Manager «entity.toFieldName»Manager;
+				private readonly ILogger _logger;
 
 				/// <summary>
 				/// Creates an instance of the class.
 				/// </summary>
 				/// <param name="employeeManager"></param>
-				public «entity.name»Controller(I«entity.name»Manager «entity.toParameterName»Manager)
-				{
+				public «entity.name»Controller(I«entity.name»Manager «entity.toParameterName»Manager, ILogger<«entity.name»Controller> logger)
+				{					
 				    «entity.toFieldName»Manager = «entity.toParameterName»Manager;
+				    _logger = logger;
 				}
 
 				/// <summary>
@@ -83,7 +86,8 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 
 		            «ENDIF»
 					await «entity.toFieldName»Manager.AddAsync(«entity.toParameterName»);
-					
+
+					«generateLogFromEntity(entity, "added", "Information")»
 				    return Ok(«IF !entity.hasCustomKey»«entity.toParameterName».Id«ENDIF»);
 				}
 
@@ -95,7 +99,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				public async Task<ActionResult<IEnumerable<«entity.name»>>> FindAll()
 				{
 					var result = await «entity.toFieldName»Manager.FindAllAsync();
-					
+
 				    return Ok(result);
 				}
 		
@@ -141,6 +145,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				    	return NotFound();
 				    }
 				    
+				    «generateLogFromParameters(entity, "removed", "Information")»
 				    return Ok();
 				}
 		
@@ -169,12 +174,23 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				    	return NotFound();
 				    }
 				    
+				    «generateLogFromParameters(entity, "updated", "Information")»
 				    return Ok();
 				}
 			}
 		}'''
 	
-		
+	def generateLogFromParameters(Entity entity, CharSequence text, CharSequence logLevel) {
+		var i = 0;
+		return '''_logger.Log«logLevel»("«entity.name» with «FOR attribute : entity.key SEPARATOR ", "»«attribute.toParameterName» {«i++»}«ENDFOR» «text».", «FOR attribute : entity.key SEPARATOR ", "»«attribute.toParameterName»«ENDFOR»);'''
+	}	
+	
+	def generateLogFromEntity(Entity entity, CharSequence text, CharSequence logLevel) {
+		var i = 0;
+		return '''_logger.Log«logLevel»("«entity.name» with «FOR attribute : entity.key SEPARATOR ", "»«attribute.toParameterName» {«i++»}«ENDFOR» «text».", «FOR attribute : entity.key SEPARATOR ", "»«entity.toParameterAccess(attribute)»«ENDFOR»);'''
+	}
+	
+	
 	def generateHttpParameters(Entity entity)
     	'''«FOR key : entity.key SEPARATOR "/"»{«key.toParameterName»}«ENDFOR»'''
 	

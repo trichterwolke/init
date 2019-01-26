@@ -68,6 +68,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 						: base(id)
 					{
 					}
+
 				«ELSE»
 					/// <summary>
 					/// Creates a new instance.
@@ -78,8 +79,8 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 							«attribute.name»Id = «attribute.name.toFirstLower»Id;				
 						«ENDFOR»
 					}
-				«ENDIF»
-		
+
+				«ENDIF»		
 				«FOR attribute : entity.attributes SEPARATOR '\n'»
 					«generateProperty(attribute)»
 				«ENDFOR»
@@ -128,27 +129,37 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 	def generateHashCodeExpression(Entity entity)
 		'''«FOR attribute : entity.key SEPARATOR " ^ "»«attribute.toPropertyName».GetHashCode()«ENDFOR»'''
 	
-	def generateProperty(Attribute attribute)'''
-		«IF attribute.isKey»
-		[Key]
-		«ELSEIF !attribute.type.isNullable»
-		[Required]
-		«ENDIF»
-		«generateStringLenghtAttribute(attribute)»
-		«IF attribute.isReference»
-		/// <summary>
-		/// Gets or sets the «attribute.name.toNaturalName» id.	
-		/// </summary>
-		[Column("«attribute.toAttributeName»_id")]
-		public «getKeyType(attribute.referencedEntity).toType»«IF attribute.type.nullable»?«ENDIF» «attribute.name»Id { get; set; }
-
-		«ENDIF»
-		/// <summary>
-		/// Gets or sets the «attribute.name.toNaturalName».	
-		/// </summary>
-		[Column("«attribute.toAttributeName»")]
-		public «attribute.type.toType» «attribute.name» { get; set; }
-	'''
+	def generateProperty(Attribute attribute)		
+	 '''«IF attribute.isReference»
+			/// <summary>
+			/// Gets or sets foreign key «attribute.name.toNaturalName» id.
+			/// </summary>
+			«generateRequired(attribute)»
+			[Column("«attribute.toAttributeName»_id")]
+			public «getKeyType(attribute.referencedEntity).toType»«IF attribute.type.nullable»?«ENDIF» «attribute.name»Id { get; set; }
+			
+			/// <summary>
+			/// Gets or sets the navigation property «attribute.name.toNaturalName».
+			/// </summary>
+			[Column("«attribute.toAttributeName»_id")]
+			public «attribute.type.toType» «attribute.name» { get; set; }
+		«ELSE»
+			/// <summary>
+			/// Gets or sets the «attribute.name.toNaturalName».
+			/// </summary>
+			«generateRequired(attribute)»
+			«generateStringLenghtAttribute(attribute)»
+			[Column("«attribute.toAttributeName»")]
+			public «attribute.type.toType» «attribute.name» { get; set; }
+		«ENDIF»'''
+	
+    def generateRequired(Attribute attribute) {
+		if (attribute.isKey){
+			'''[Key]'''}
+		else if (!attribute.type.isNullable) {			
+			'''[Required]'''			
+		}
+    }
 	
 	def generateStringLenghtAttribute(Attribute attribute){
 		var type = attribute.type

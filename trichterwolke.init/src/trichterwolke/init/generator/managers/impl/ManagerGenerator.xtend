@@ -111,7 +111,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 				/// </summary>
 				/// <param name="context">Access to entity storage</param>
 				/// <param name="logger">Logging interface</param>
-		        public «entity.name»Manager(EntityContext context, ILogger<«entity.name»> logger) 
+		        public «entity.name»Manager(EntityContext context, ILogger<«entity.name»Manager> logger) 
 		            : base(context, logger)
 		        {
 		        }
