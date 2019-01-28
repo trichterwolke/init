@@ -219,15 +219,23 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 	
 	namespace «this.namespace».Extensions
 	{
-	    public static class ModelStateExtensions
-	    {
-	        public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
-	        {
-	            foreach (var validationResult in validationResults)
-	            {
-	                modelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
-	            }
-	        }
-	    }
+		/// <summary>
+		/// Extensions for the ModelStateDictionary
+		/// </summary>
+		public static class ModelStateExtensions
+		{
+		    /// <summary>
+		    /// Adds ValidationResults as ModelErrors to the ModelState object
+		    /// </summary>
+		    /// <param name="modelState">ModelState object</param>
+		    /// <param name="validationResults">Validations results</param>
+		    public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
+		    {
+		        foreach (var validationResult in validationResults)
+		        {                
+		            modelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
+		        }
+		    }
+		}
 	}'''
 }
