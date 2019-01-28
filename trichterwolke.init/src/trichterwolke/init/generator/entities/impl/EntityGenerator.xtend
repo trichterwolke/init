@@ -61,7 +61,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 					}
 					
 					/// <summary>
-					/// Creates an new instance.
+					/// Creates a new instance.
 					/// </summary>
 					/// <param name="id">primary key</param>
 					public «entity.name»(«getKeyType(entity).toType» id)
@@ -193,7 +193,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 				}
 				
 				/// <summary>
-				/// Creates an new instance
+				/// Creates a new instance
 				/// </summary>
 				/// <param name="id">primary key</param>
 				public EntityBase(TKey id)

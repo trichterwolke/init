@@ -60,7 +60,8 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				/// <summary>
 				/// Creates an instance of the class.
 				/// </summary>
-				/// <param name="employeeManager"></param>
+				/// <param name="«entity.toParameterName»Manager">Provides the APIs for managing «entity.name.toNaturalName» in a persistence store.</param>
+				/// <param name="logger">Logging interface for the «entity.name»Controller</param>
 				public «entity.name»Controller(I«entity.name»Manager «entity.toParameterName»Manager, ILogger<«entity.name»Controller> logger)
 				{					
 				    «entity.toFieldName»Manager = «entity.toParameterName»Manager;
@@ -218,7 +219,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 	
 	namespace «this.namespace».Extensions
 	{
-	    public static class ModelStateExtentions
+	    public static class ModelStateExtensions
 	    {
 	        public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
 	        {
