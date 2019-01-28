@@ -49,6 +49,9 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		    /// <summary>
 		    /// Represents the «entity.name.toNaturalName» entity
 		    /// </summary>
+			«FOR key : entity.key»
+			/// <param name="«key.toParameterName»">Primary key of the «entity.name.toNaturalName»</param>
+			«ENDFOR»
 			[Table("«entity.toTableName»")]
 			public class «entity.name» : «IF entity.hasCustomKey»IEquatable<«entity.name»>«ELSE»EntityBase<«entity.name», «getKeyType(entity).toType»>«ENDIF»
 			{

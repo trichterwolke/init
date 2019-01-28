@@ -107,7 +107,9 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				/// <summary>
 		        /// Returns the «entity.name.toNaturalName» with the given id.
 		        /// </summary>
-		        /// <param name="id">Primary key of the «entity.name.toNaturalName»</param>
+		        «FOR key : entity.key»
+		        /// <param name="«key.toParameterName»">Primary key of the «entity.name.toNaturalName»</param>
+		        «ENDFOR»
 		        /// <returns>The «entity.name.toNaturalName» with the given id</returns>
 				[HttpGet("«generateHttpParameters(entity)»")]
 				public async Task<ActionResult<«entity.name»>> Find(«generateParametersDeclaration(entity)»)
@@ -125,7 +127,9 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		        /// <summary>
 		        /// Removes the «entity.name.toNaturalName» with the given id.
 		        /// </summary>
-		        /// <param name="id">Primary key of the «entity.name.toNaturalName»</param>
+		        «FOR key : entity.key»
+		        /// <param name="«key.toParameterName»">Primary key of the «entity.name.toNaturalName»</param>
+		        «ENDFOR»
 				[HttpDelete("«generateHttpParameters(entity)»")]
 				public async Task<IActionResult> Remove(«generateParametersDeclaration(entity)»)
 				{
@@ -153,7 +157,9 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		        /// <summary>
 		        /// Updates the «entity.name.toNaturalName» with the given id.
 		        /// </summary>
-		        /// <param name="id">Primary key of the «entity.name.toNaturalName»</param>
+		        «FOR key : entity.key»
+		        /// <param name="«key.toParameterName»">Primary key of the «entity.name.toNaturalName»</param>
+		        «ENDFOR»
 		        /// <param name="«entity.toParameterName»">The «entity.name.toNaturalName» to updade</param>
 				[HttpPut("«generateHttpParameters(entity)»")]
 				public async Task<IActionResult> Update(«generateParametersDeclaration(entity)», [FromBody] «entity.name» «entity.toParameterName»)
