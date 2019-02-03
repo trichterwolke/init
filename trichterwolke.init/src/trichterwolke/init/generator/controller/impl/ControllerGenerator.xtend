@@ -49,7 +49,6 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		    /// <summary>
 		    /// Rest Api controller for «entity.name.toNaturalName».
 		    /// </summary>
-			[Authorize]
 			[ApiController]
 			[Route("api/[controller]")]
 			public class «entity.name»Controller : ControllerBase
