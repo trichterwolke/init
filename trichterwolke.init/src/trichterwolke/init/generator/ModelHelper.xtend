@@ -46,14 +46,14 @@ class ModelHelper implements IModelHelper {
 		entities.filter(e | e.key.size > 1)
 	}
 	
-	override Iterable<Entity> GetEntitiesFromMany(Entity entity) {
+	override Iterable<Entity> getEntitiesFromMany(Entity entity) {
 		
 		var result = new ArrayList<Entity>();
 		for(many : entity.manies) {			
 			var newEntity = InitFactory.eINSTANCE.createEntity();
 			newEntity.name = entity.name + many.name
-			newEntity.getAttributes().add(CreateAttribute(entity))
-			newEntity.getAttributes().add(CreateAttribute(many.type.type))
+			newEntity.getAttributes().add(createAttribute(entity))
+			newEntity.getAttributes().add(createAttribute(many.type.type))
 					
 		    var newAttributes = newEntity.attributes;							 
 			for(attribute : many.attributes) {				
@@ -69,11 +69,12 @@ class ModelHelper implements IModelHelper {
 	def Attribute clone(Attribute attribute) {
 		var result = InitFactory.eINSTANCE.createAttribute()
 		result.name = attribute.name
-		result.type = attribute.type
+		result.type = InitFactory.eINSTANCE.createType()
+
 		return result;		
 	}
 	
-	def Attribute CreateAttribute(Declaration entity){
+	def Attribute createAttribute(Declaration entity){
 		var attribute = InitFactory.eINSTANCE.createAttribute()
 		attribute.name = entity.name
 		var type = InitFactory.eINSTANCE.createDefinedType()

@@ -16,5 +16,5 @@ interface IModelHelper {
 	
 	def Iterable<Entity> withCompositeKey(Iterable<Entity> entities)	
 	
-	def Iterable<Entity> GetEntitiesFromMany(Entity entity)	
+	def Iterable<Entity> getEntitiesFromMany(Entity entity)	
 }

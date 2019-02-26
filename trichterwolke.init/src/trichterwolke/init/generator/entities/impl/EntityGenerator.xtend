@@ -35,9 +35,9 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 	    input.allContents.filter(Entity).forEach[generateFiles];		    		  
 	}
 	
-	def generateFiles(Entity entity){
+	def generateFiles(Entity entity) {
 		generateFile(entity)
-		for(many : entity.GetEntitiesFromMany) {
+		for(many : entity.entitiesFromMany) {
 			generateFile(many)
 		}
 	}

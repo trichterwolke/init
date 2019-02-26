@@ -1,6 +1,7 @@
 package trichterwolke.init.generator.db.impl
 
 import com.google.inject.Inject
+import java.util.ArrayList
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
@@ -25,7 +26,17 @@ class CreateSchemaGenerator extends GeneratorBase implements ICreateSchemaGenera
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 		
-		var entities = input.allContents.filter(Entity).toList;
+		var entities = new ArrayList<Entity>() 
+		var s = input.allContents.filter(Entity).toList;
+		for(entity : s) {
+			//entities.addAll(entity.entitiesFromMany)
+			var manies = entity.entitiesFromMany
+			//entities.addAll(manies)
+			System.out.println(manies.length)
+			entities.addAll(manies);
+		}
+		
+		System.out.println("X")
 		var content = generateContent(entities);
 	    this.fsa.generateFile('db/create_schema.sql', content);	
 	}

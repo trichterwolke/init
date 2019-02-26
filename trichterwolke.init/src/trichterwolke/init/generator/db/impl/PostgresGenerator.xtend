@@ -49,7 +49,7 @@ class PostgresGenerator implements IDbGenerator {
 	   		'''character varying(«type.size»)'''
 	}
 		
-	def dispatch encode(FloatingpointType type) {
+	def dispatch encode(FloatingpointType type) {		
 		switch type.keyword {
 			case DOUBLE:
 				'''float'''			
