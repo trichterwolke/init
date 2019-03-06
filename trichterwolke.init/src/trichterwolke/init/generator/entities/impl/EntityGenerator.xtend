@@ -32,7 +32,14 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		super.doGenerate(input, fsa, context);
 
 		this.fsa.generateFile('''src/«this.namespace».Entities/EntityBase.cs''', generateEntityBase);		
-	    input.allContents.filter(Entity).forEach[generateFile];		  
+	    input.allContents.filter(Entity).forEach[generateFiles];		    		  
+	}
+	
+	def generateFiles(Entity entity){
+		generateFile(entity)
+		for(many : entity.GetEntitiesFromMany) {
+			generateFile(many)
+		}
 	}
 	
 	def generateFile(Entity entity) {

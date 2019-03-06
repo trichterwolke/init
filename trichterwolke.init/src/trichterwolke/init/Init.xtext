@@ -23,11 +23,18 @@ Enumeral:
 Entity:
 	'entity' name=ID (':' overrideKeyType=IntegerType)? '{'
 	attributes+=Attribute*
+	
+	manies+=Many*
 	'}';	
 		
 Attribute:
 	name=ID ':' type=Type (key?='key' | unique?='unique')?; 
 	
+Many:
+	'many' name=ID ':' type=DefinedType '{'
+	attributes+=Attribute*	
+	'}';	
+
 Key:
 	type=DefinedType;	
 	 

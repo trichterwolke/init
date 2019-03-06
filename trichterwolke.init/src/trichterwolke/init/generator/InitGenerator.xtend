@@ -40,12 +40,12 @@ class InitGenerator extends AbstractGenerator {
 	@Inject
 	IControllerGenerator controllerGenerator;
 
-	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {					
+	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {						
 		this.entityGenerator.doGenerate(resource, fsa, context);
 		this.enumerationGenerator.doGenerate(resource, fsa, context);
 		this.serviceGenerator.doGenerate(resource, fsa, context);
 		this.controllerGenerator.doGenerate(resource, fsa, context);
 		this.createSchemaGenerator.doGenerate(resource, fsa, context);
-		this.dropSchemaGenerator.doGenerate(resource,fsa, context);				
+		this.dropSchemaGenerator.doGenerate(resource,fsa, context);
 	}
 }
