@@ -26,7 +26,8 @@ class PostgresGenerator implements IDbGenerator {
 		switch(name) {
 			case "end",
 			case "begin",
-			case "user":
+			case "user",
+			case "order":
 				return '''"«name»"'''
 			default:
 				return name

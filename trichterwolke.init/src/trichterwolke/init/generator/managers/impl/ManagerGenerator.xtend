@@ -25,8 +25,8 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		  
 		this.fsa.generateFile('''src/«this.namespace».Managers/IManagerBase.cs''', generateIManagerBaseContent());
 		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/ManagerBase.cs''', generateManagerBaseContent());	
-		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/EntityContext.cs''', generateEntityContextContent(entities));		
-		this.fsa.generateFile('''src/«this.namespace».Managers/DependencyInjectionSetup.cs''', generateDependencyInjectionSetup(entities));		
+		this.fsa.generateFile('''src/«this.namespace».Managers/EntityFramework/EntityContext.cs''', generateEntityContextContent(entities));	
+		this.fsa.generateFile('''src/«this.namespace».Managers/ValidationResultExtensions.cs''', generateValidationResultExtensions());	
 		
 		entities.forEach[generateFile];
 	}
@@ -107,7 +107,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		    public class «entity.name»Manager : ManagerBase<«entity.name»>, I«entity.name»Manager
 		    {
 				/// <summary>
-				/// Creates an instance.
+				/// Initializes a new instance of the class
 				/// </summary>
 				/// <param name="context">Access to entity storage</param>
 				/// <param name="logger">Logging interface</param>
@@ -355,16 +355,32 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		
 		namespace «this.namespace».Managers.EntityFramework
 		{
-		    public class EntityContext : MyIdentityDbContext
+			/// <summary>
+			/// A EntityContext instance represents a session with the database and can be used to
+			/// query and save instances of your entities.
+			/// </summary>			
+		    public class EntityContext : CustomIdentityDbContext
 		    {
+				/// <summary>
+				/// Initializes a new instance of the entity context.
+				/// </summary>
+				/// <param name="options">The options to be used by a DbContext.</param>
 		        public EntityContext(DbContextOptions<EntityContext> options)
 		            : base(options)
-		        { }
+		        {
+		        }
+				«FOR entity : entities»
 
-		        «FOR entity : entities»
-		        public DbSet<«entity.name»> «entity.name»s { get; set; }
-		        «ENDFOR»
-		        
+					/// <summary>
+					/// Provides access to the «entity.name.toNaturalName» table.
+					/// </summary>
+					public DbSet<«entity.name»> «entity.name»s { get; set; }
+				«ENDFOR»
+		
+				/// <summary>
+				/// Configures the context for the database schema.
+				/// </summary>
+				/// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
 		        protected override void OnModelCreating(ModelBuilder modelBuilder)
 		        {
 		        	base.OnModelCreating(modelBuilder);
@@ -375,32 +391,31 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		            «ENDFOR»
 		        }
 		    }
-		}'''
+		}'''		
 		
-	def generateDependencyInjectionSetup(Iterable<Entity> entities)'''
-		using Microsoft.Extensions.DependencyInjection;
-		using «this.namespace».Managers.EntityFramework;
+	def generateValidationResultExtensions()'''
+		using System;
+		using System.Collections.Generic;
+		using System.ComponentModel.DataAnnotations;
+		using System.Text;
 		
-		namespace «this.namespace».Managers
+		namespace «this.namespace».Managers.EntityFramework
 		{
 		    /// <summary>
-		    /// Adds services the dependency injection
+		    /// Extension methods for a ValidationResult collection
 		    /// </summary>
-		    public static class DependencyInjectionSetup
+		    public static class ValidationResultExtentions
 		    {
 		        /// <summary>
-		        /// Add entity managers to the dependency injection
+		        /// Adds error messages the ValidationResult collection
 		        /// </summary>
-		        /// <param name="services">service collection</param>
-		        /// <returns>service collection</returns>
-		        public static IServiceCollection AddEntityManagers(this IServiceCollection services)
+		        /// <param name="validationResults">Collection to which the elements are to be added.</param>
+		        /// <param name="errorMessage">The error messessage to be added.</param>
+		        /// <param name="memberNames">The collection of member names that indicate which fields have validation errors.</param>
+		        public static void Add(this ICollection<ValidationResult> validationResults, string errorMessage, params string[] memberNames)
 		        {
-			        «FOR entity : entities»
-			        services.AddTransient<I«entity.name»Manager, «entity.name»Manager>();
-			        «ENDFOR»
-
-				    return services;
-				}
-			}
-		}'''
+		            validationResults.Add(new ValidationResult(errorMessage, memberNames));
+		        }
+		    }
+		}'''	
 }

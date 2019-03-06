@@ -49,24 +49,23 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		    /// <summary>
 		    /// Represents the «entity.name.toNaturalName» entity
 		    /// </summary>
-			«FOR key : entity.key»
-			/// <param name="«key.toParameterName»">Primary key of the «entity.name.toNaturalName»</param>
-			«ENDFOR»
 			[Table("«entity.toTableName»")]
 			public class «entity.name» : «IF entity.hasCustomKey»IEquatable<«entity.name»>«ELSE»EntityBase<«entity.name», «getKeyType(entity).toType»>«ENDIF»
 			{
+				/// <summary>
+				/// Initializes a new instance of the «entity.name.toNaturalName».
+				/// </summary>
+				public «entity.name»()
+				{
+				}
+				
 				«IF !entity.hasCustomKey»
 					/// <summary>
-					/// Creates a new instance.
+					/// Initializes a new instance of the «entity.name.toNaturalName».
 					/// </summary>
-					public «entity.name»()
-					{
-					}
-					
-					/// <summary>
-					/// Creates a new instance.
-					/// </summary>
-					/// <param name="id">primary key</param>
+					«FOR key : entity.key»
+					/// <param name="«key.toParameterName»">Primary key of the «entity.name.toNaturalName»</param>
+					«ENDFOR»
 					public «entity.name»(«getKeyType(entity).toType» id)
 						: base(id)
 					{
@@ -74,12 +73,12 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 
 				«ELSE»
 					/// <summary>
-					/// Creates a new instance.
+					/// Initializes a new instance of the «entity.name.toNaturalName».
 					/// </summary>
 					public «entity.name»(«entity.generateParametersDeclaration»)
 					{
 						«FOR attribute : entity.key»
-							«attribute.name»Id = «attribute.name.toFirstLower»Id;				
+							«attribute.name»Id = «attribute.name.toFirstLower»Id;
 						«ENDFOR»
 					}
 
@@ -102,7 +101,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 					/// <summary>
 					/// Indicates whether this instance and another entity of the same type have the same primary key.
 					/// </summary>
-					/// <param name="obj">An entity to compare with this entity</param>
+					/// <param name="other">An entity to compare with this entity</param>
 					/// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
 					public virtual bool Equals(«entity.name» other)
 					{
@@ -196,7 +195,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 				}
 				
 				/// <summary>
-				/// Creates a new instance
+				/// Initializes a new instance of the EntityBase.
 				/// </summary>
 				/// <param name="id">primary key</param>
 				public EntityBase(TKey id)
@@ -224,7 +223,7 @@ class EntityGenerator extends GeneratorBase implements IEntityGenerator {
 		        /// <summary>
 		        /// Indicates whether this instance and another entity of the same type have the same Id.
 		        /// </summary>
-		        /// <param name="obj">An entity to compare with this entity</param>
+		        /// <param name="other">An entity to compare with this entity</param>
 		        /// <returns>true if the current entity is equal to the other parameter; otherwise, false.</returns>
 		        public virtual bool Equals(T other)
 		        {

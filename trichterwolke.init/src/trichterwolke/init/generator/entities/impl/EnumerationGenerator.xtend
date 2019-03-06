@@ -5,6 +5,7 @@ import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import trichterwolke.init.generator.GeneratorBase
+import trichterwolke.init.generator.ICSharpGenerator
 import trichterwolke.init.generator.ITypeGenerator
 import trichterwolke.init.generator.entities.IEnumerationGenerator
 import trichterwolke.init.init.Enumeration
@@ -12,7 +13,10 @@ import trichterwolke.init.init.Enumeration
 class EnumerationGenerator extends GeneratorBase implements IEnumerationGenerator {
 	
 	@Inject
-	extension ITypeGenerator
+	extension ITypeGenerator	
+	
+	@Inject
+	extension ICSharpGenerator
 					
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
@@ -30,9 +34,16 @@ class EnumerationGenerator extends GeneratorBase implements IEnumerationGenerato
 	
 	namespace «this.namespace».Entities
 	{
+	    /// <summary>
+	    /// Represents «enumeration.name.toNaturalName»s 
+	    /// </summary>
 		public enum «enumeration.name» : «enumeration.superType.toType»
 		{
 			«FOR enumeral : enumeration.enumerals SEPARATOR ","»
+
+				/// <summary>
+				/// «enumeral.name.toNaturalName» Value: «enumeral.value»
+				/// </summary>
 				«enumeral.name» = «enumeral.value»
 			«ENDFOR»
 		}

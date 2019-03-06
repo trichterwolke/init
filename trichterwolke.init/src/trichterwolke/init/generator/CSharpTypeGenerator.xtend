@@ -9,8 +9,12 @@ import trichterwolke.init.init.FloatingpointType
 
 class CSharpTypeGenerator implements ITypeGenerator {	
 	override toType(Type type) {
-		type.encode	
-	}
+		var result = type.encode
+		if(!type.nullable || type instanceof DefinedType || (type instanceof CharacterType && (type as CharacterType).size > 1))
+			result
+		else 
+			result + '?'	
+	} 
 		
 	def dispatch encode(DefinedType type)						
 		'''«type.type.name»'''
@@ -22,10 +26,10 @@ class CSharpTypeGenerator implements ITypeGenerator {
 	   		'string'
 	}
 		
-	def dispatch encode(FloatingpointType type) {
+	def dispatch encode(FloatingpointType type) {		
 		switch type.keyword {
 			case DOUBLE:
-				'''double'''			
+				'''double'''
 			case SINGLE:
 				'''float'''
 			case DECIMAL:

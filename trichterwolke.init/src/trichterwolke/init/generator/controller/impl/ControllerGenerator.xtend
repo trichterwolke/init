@@ -17,7 +17,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 	extension ITypeGenerator	
 	
 	@Inject
-	extension IModelHelper	
+	extension IModelHelper
 	
 	@Inject
 	extension ICSharpGenerator
@@ -25,8 +25,11 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 	override doGenerate(Resource input, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		super.doGenerate(input, fsa, context);
 						
+		var entities = input.allContents.filter(Entity).toList();
+							
+		this.fsa.generateFile('''src/«this.namespace»/Setup/EntityManagersSetup.cs''', generateDependencyInjectionSetup(entities));		
 		this.fsa.generateFile('''src/«this.namespace»/Extensions/ModelStateExtentions.cs''', generateExtensions());
-		input.allContents.filter(Entity).forEach[generateFile];
+		entities.forEach[generateFile];
 	}
 	
 	def generateFile(Entity entity) {
@@ -49,22 +52,27 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		    /// <summary>
 		    /// Rest Api controller for «entity.name.toNaturalName».
 		    /// </summary>
-			[Authorize]
 			[ApiController]
 			[Route("api/[controller]")]
 			public class «entity.name»Controller : ControllerBase
 			{
 				private readonly I«entity.name»Manager «entity.toFieldName»Manager;
+				private readonly IAuthorizationService _authorizationService;
 				private readonly ILogger _logger;
 
 				/// <summary>
-				/// Creates an instance of the class.
+				/// Initializes a new instance of the «entity.name.toNaturalName» controller.
 				/// </summary>
 				/// <param name="«entity.toParameterName»Manager">Provides the APIs for managing «entity.name.toNaturalName» in a persistence store.</param>
-				/// <param name="logger">Logging interface for the «entity.name»Controller</param>
-				public «entity.name»Controller(I«entity.name»Manager «entity.toParameterName»Manager, ILogger<«entity.name»Controller> logger)
+				/// <param name="authorizationService">Checks policy based permissions for a user.</param>
+				/// <param name="logger">Logging interface for the «entity.name»Controller.</param>
+				public «entity.name»Controller(
+					I«entity.name»Manager «entity.toParameterName»Manager,
+					IAuthorizationService authorizationService,
+					ILogger<«entity.name»Controller> logger)
 				{					
 				    «entity.toFieldName»Manager = «entity.toParameterName»Manager;
+				    _authorizationService = authorizationService;
 				    _logger = logger;
 				}
 
@@ -214,34 +222,62 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 			«entity.toParameterName».Id = id;
 		«ENDIF»
 	'''	
-			 
-	def generateExtensions()'''
-	using System;
-	using System.Collections.Generic;
-	using System.ComponentModel.DataAnnotations;
-	using System.Linq;
-	using System.Threading.Tasks;
-	using Microsoft.AspNetCore.Mvc.ModelBinding;
-	
-	namespace «this.namespace».Extensions
-	{
-		/// <summary>
-		/// Extensions for the ModelStateDictionary
-		/// </summary>
-		public static class ModelStateExtensions
+			
+	def generateDependencyInjectionSetup(Iterable<Entity> entities)'''	
+		using «this.namespace».Managers;
+		using «this.namespace».Managers.EntityFramework;
+		using Microsoft.Extensions.DependencyInjection;
+		
+		namespace «this.namespace».Setup
 		{
 		    /// <summary>
-		    /// Adds ValidationResults as ModelErrors to the ModelState object
+		    /// Adds services the dependency injection
 		    /// </summary>
-		    /// <param name="modelState">ModelState object</param>
-		    /// <param name="validationResults">Validations results</param>
-		    public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
+		    public static class EntityManagersSetup
 		    {
-		        foreach (var validationResult in validationResults)
-		        {                
-		            modelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
-		        }
-		    }
-		}
-	}'''
+		        /// <summary>
+		        /// Add entity managers to the dependency injection
+		        /// </summary>
+		        /// <param name="services">service collection</param>
+		        /// <returns>service collection</returns>
+		        public static IServiceCollection AddEntityManagers(this IServiceCollection services)
+		        {
+			        «FOR entity : entities»
+			        services.AddTransient<I«entity.name»Manager, «entity.name»Manager>();
+			        «ENDFOR»
+
+				    return services;
+				}
+			}
+		}'''			
+			 
+	def generateExtensions()'''
+		using System;
+		using System.Collections.Generic;
+		using System.ComponentModel.DataAnnotations;
+		using System.Linq;
+		using System.Threading.Tasks;
+		using Microsoft.AspNetCore.Mvc.ModelBinding;
+		
+		namespace «this.namespace».Extensions
+		{
+			/// <summary>
+			/// Extensions for the ModelStateDictionary
+			/// </summary>
+			public static class ModelStateExtensions
+			{
+			    /// <summary>
+			    /// Adds ValidationResults as ModelErrors to the ModelState object
+			    /// </summary>
+			    /// <param name="modelState">ModelState object</param>
+			    /// <param name="validationResults">Validations results</param>
+			    public static void AddValidationResults(this ModelStateDictionary modelState, IEnumerable<ValidationResult> validationResults)
+			    {
+			        foreach (var validationResult in validationResults)
+			        {
+			            modelState.AddModelError(validationResult.MemberNames.First(), validationResult.ErrorMessage);
+			        }
+			    }
+			}
+		}'''
 }
