@@ -82,10 +82,10 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 				/// <param name="«entity.toParameterName»">The «entity.name.toNaturalName» to insert</param>
 				/// <returns>The id of the «entity.name.toNaturalName»</returns>
 				[HttpPost]
-				public async Task<ActionResult«IF !entity.hasCustomKey»<«getKeyType(entity).toType»>«ENDIF»> Add([FromBody] «entity.toParameterDeclaration»)
+				public async Task<ActionResult«IF !entity.hasCustomKey»<«getKeyType(entity).toType»>«ENDIF»> Create([FromBody] «entity.toParameterDeclaration»)
 				{
 					«IF entity.hasUnique»
-						var validation = await «entity.toFieldName»Manager.ValidateAdd(«entity.toParameterName»);
+						var validation = await «entity.toFieldName»Manager.ValidateCreateAsync(«entity.toParameterName»);
 						ModelState.AddValidationResults(validation);
 						
 						if(!ModelState.IsValid)
@@ -120,9 +120,9 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		        «ENDFOR»
 		        /// <returns>The «entity.name.toNaturalName» with the given id</returns>
 				[HttpGet("«generateHttpParameters(entity)»")]
-				public async Task<ActionResult<«entity.name»>> Find(«generateParametersDeclaration(entity)»)
+				public async Task<ActionResult<«entity.name»>> FindById(«generateParametersDeclaration(entity)»)
 				{
-					var result = await «entity.toFieldName»Manager.FindAsync(«generateParameters(entity)»);
+					var result = await «entity.toFieldName»Manager.FindByIdAsync(«generateParameters(entity)»);
 					
 					if (result == null)
 					{
@@ -130,7 +130,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 					}
 
 					return Ok(result);
-				}		
+				}
 
 		        /// <summary>
 		        /// Removes the «entity.name.toNaturalName» with the given id.
@@ -139,12 +139,12 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 		        /// <param name="«key.toParameterName»">Primary key of the «entity.name.toNaturalName»</param>
 		        «ENDFOR»
 				[HttpDelete("«generateHttpParameters(entity)»")]
-				public async Task<IActionResult> Remove(«generateParametersDeclaration(entity)»)
+				public async Task<IActionResult> Delete(«generateParametersDeclaration(entity)»)
 				{
 					var «entity.toParameterName» = new «entity.name»(«generateParameters(entity)»);
 
 					«IF isReferenced(entity)»
-						var validation = await «entity.toFieldName»Manager.ValidateRemove(«entity.toParameterName»);
+						var validation = await «entity.toFieldName»Manager.ValidateDeleteAsync(«entity.toParameterName»);
 						ModelState.AddValidationResults(validation);
 						
 						if(!ModelState.IsValid)
@@ -153,12 +153,12 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 						}
 						
 		            «ENDIF»
-				    if (!await «entity.toFieldName»Manager.RemoveAsync(«entity.toParameterName»))
+				    if (!await «entity.toFieldName»Manager.DeleteAsync(«entity.toParameterName»))
 				    {
 				    	return NotFound();
 				    }
 				    
-				    «generateLogFromParameters(entity, "removed", "Information")»
+				    «generateLogFromParameters(entity, "deleted", "Information")»
 				    return Ok();
 				}
 		
@@ -175,7 +175,7 @@ class ControllerGenerator extends GeneratorBase implements IControllerGenerator 
 					«generatePropertyAssignment(entity)»
 					
 					«IF entity.hasUnique»
-						var validation = await «entity.toFieldName»Manager.ValidateUpdate(«entity.toParameterName»);
+						var validation = await «entity.toFieldName»Manager.ValidateUpdateAsync(«entity.toParameterName»);
 						ModelState.AddValidationResults(validation);
 						
 						if(!ModelState.IsValid)

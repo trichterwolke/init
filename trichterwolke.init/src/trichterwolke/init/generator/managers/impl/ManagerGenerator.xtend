@@ -65,7 +65,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 					/// </summary>
 					/// <param name="«entity.toParameterName»">The entity to validate</param>
 					/// <returns>List of validation errors</returns>
-					Task<IEnumerable<ValidationResult>> ValidateAdd(«entity.toParameterDeclaration»);
+					Task<IEnumerable<ValidationResult>> ValidateCreateAsync(«entity.toParameterDeclaration»);
 
 				«ENDIF»
 				«IF entity.isReferenced»
@@ -74,7 +74,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 				    /// </summary>
 				    /// <param name="«entity.toParameterName»">The entity to validate</param>
 				    /// <returns>List of validation errors</returns>
-				    Task<IEnumerable<ValidationResult>> ValidateRemove(«entity.toParameterDeclaration»);
+				    Task<IEnumerable<ValidationResult>> ValidateDeleteAsync(«entity.toParameterDeclaration»);
 
 				«ENDIF»
 				«IF entity.hasUnique»
@@ -83,7 +83,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 				    /// </summary>
 				    /// <param name="«entity.toParameterName»">The entity to validate</param>
 				    /// <returns>List of validation errors</returns>
-				    Task<IEnumerable<ValidationResult>> ValidateUpdate(«entity.toParameterDeclaration»);
+				    Task<IEnumerable<ValidationResult>> ValidateUpdateAsync(«entity.toParameterDeclaration»);
 				«ENDIF»
 			}
 		}'''	
@@ -136,9 +136,9 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 					/// </summary>
 					/// <param name="«entity.toParameterName»">The entity to validate</param>
 					/// <returns>List of validation errors</returns>
-					public Task<IEnumerable<ValidationResult>> ValidateAdd(«entity.toParameterDeclaration»)
+					public Task<IEnumerable<ValidationResult>> ValidateCreateAsync(«entity.toParameterDeclaration»)
 					{
-						return ValidateUpdate(«entity.toParameterName»);
+						return ValidateUpdateAsync(«entity.toParameterName»);
 					}
 
 				«ENDIF»
@@ -148,7 +148,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 					/// </summary>
 					/// <param name="«entity.toParameterName»">The entity to validate</param>
 					/// <returns>List of validation errors</returns>
-					public async Task<IEnumerable<ValidationResult>> ValidateRemove(«entity.toParameterDeclaration»)
+					public async Task<IEnumerable<ValidationResult>> ValidateDeleteAsync(«entity.toParameterDeclaration»)
 					{
 						var results = new List<ValidationResult>();
 					
@@ -170,7 +170,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 					/// </summary>
 					/// <param name="«entity.toParameterName»">The entity to validate</param>
 					/// <returns>List of validation errors</returns>
-					public async Task<IEnumerable<ValidationResult>> ValidateUpdate(«entity.toParameterDeclaration»)
+					public async Task<IEnumerable<ValidationResult>> ValidateUpdateAsync(«entity.toParameterDeclaration»)
 					{
 					    var results = new List<ValidationResult>();
 					
@@ -248,7 +248,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		        /// </summary>
 		        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
 		        /// <returns>the found entity, null otherwise</returns>
-		        public virtual async Task<T> FindAsync(object[] keyValues)
+		        public virtual async Task<T> FindByIdAsync(object[] keyValues)
 			    {
 			        return await Context.FindAsync<T>(keyValues);
 			    }
@@ -258,7 +258,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		        /// </summary>
 		        /// <param name="entity">The entity to remove</param>
 		        /// <returns>false if the entity was not found</returns>
-		        public virtual async Task<bool> RemoveAsync(T entity)
+		        public virtual async Task<bool> DeleteAsync(T entity)
 			    {
 			        Context.Remove(entity);
 		
@@ -318,7 +318,7 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		        /// Adds the given entity to storage.
 		        /// </summary>
 		        /// <param name="entity">The entity to add.</param>
-		        Task AddAsync(T entity);
+		        Task CreateAsync(T entity);
 		
 		        /// <summary>
 		        /// Returns all entities from storage.
@@ -331,14 +331,14 @@ class ManagerGenerator extends GeneratorBase implements IManagersGenerator {
 		        /// </summary>
 		        /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
 		        /// <returns>the found entity, null otherwise</returns>
-		        Task<T> FindAsync(params object[] keyValues);
+		        Task<T> FindByIdAsync(params object[] keyValues);
 		
 		        /// <summary>
 		        /// Removes the given entity from storage.
 		        /// </summary>
 		        /// <param name="entity">The entity to remove</param>
 		        /// <returns>false if the entity was not found</returns>
-		        Task<bool> RemoveAsync(T entity);
+		        Task<bool> DeleteAsync(T entity);
 		
 		        /// <summary>
 		        /// Updates the given entity in storage.
